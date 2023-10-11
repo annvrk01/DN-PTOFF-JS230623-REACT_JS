@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Col, Container, Row, Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import axios from 'axios';
-import { LOCAL_URL } from '../../constants';
+// import axios from 'axios';
+import { LOCAL_URL } from '../../../constants/index';
 import { addRequest } from "../../../redux/reducer/requestSlice";
 
 export default function CreateRequestForm(props) {
