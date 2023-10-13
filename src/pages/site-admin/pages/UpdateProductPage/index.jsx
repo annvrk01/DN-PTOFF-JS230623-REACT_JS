@@ -1,26 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  FormLabel,
-  MenuItem,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, FormLabel, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { screenUrl } from '../../../../constants/screen/screenUrl';
 import { useDispatch, useSelector } from 'react-redux';
 import { EditorState, convertToRaw } from 'draft-js';
-import { addProduct, updateProduct } from '../../api/productApi';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import BackupIcon from '@mui/icons-material/Backup';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import EditorDescription from './EditorDescription';
 import draftToHtml from 'draftjs-to-html';
+import { addProduct, updateProduct } from '../../../../redux/slice/productSlice';
 
 UpdateProductPage.propTypes = {};
 
@@ -226,15 +217,7 @@ function UpdateProductPage() {
         <Typography variant="h5">{productId ? 'Cập Nhật' : 'Thêm'} Sản phẩm</Typography>
       </Stack>
 
-      <Stack
-        direction="row"
-        component={Paper}
-        elevation={2}
-        mt={4}
-        p={3}
-        gap={3}
-        sx={{ borderRadius: 3 }}
-      >
+      <Stack direction="row" component={Paper} elevation={2} mt={4} p={3} gap={3} sx={{ borderRadius: 3 }}>
         <Stack width="60%" gap={2}>
           <TextField
             sx={inputStyle}
@@ -319,10 +302,7 @@ function UpdateProductPage() {
 
           <Stack>
             <FormLabel id="demo-radio-buttons-group-label">Mô tả</FormLabel>
-            <EditorDescription
-              editorState={editorState}
-              onEditorStateChange={onEditorStateChange}
-            />
+            <EditorDescription editorState={editorState} onEditorStateChange={onEditorStateChange} />
           </Stack>
           <Button variant="contained" onClick={handleSubmit}>
             {productId ? 'Sửa' : 'Thêm'}
@@ -350,13 +330,7 @@ function UpdateProductPage() {
                   <BackupIcon sx={{ fontSize: 32 }} />
                   Choose avatar
                 </Stack>
-                <input
-                  type="file"
-                  multiple="multiple"
-                  hidden
-                  accept="/image/"
-                  onChange={handleUploadImage}
-                />
+                <input type="file" multiple="multiple" hidden accept="/image/" onChange={handleUploadImage} />
               </Button>
             )}
           </Stack>

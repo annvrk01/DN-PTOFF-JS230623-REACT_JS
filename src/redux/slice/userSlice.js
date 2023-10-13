@@ -1,33 +1,34 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getUsers, addUser, updateUser, deleteUser, getUser } from '../../pages/site-admin/api/userApi';
+import { addUser, deleteUser, getUsers, updateUser } from '../../api/userApi';
+
+const initialState = {
+  data: [],
+  userCurrent: {},
+  token: null,
+  isLoading: false,
+  isSuccess: false,
+  errorMessage: '',
+};
 
 const userSlice = createSlice({
   name: 'users',
-  initialState: {
-    data: [],
-    userUpdate: {},
-    selectedItems: [],
-    selectAll: false,
-    isLoading: false,
-    isSuccess: false,
-    errorMessage: '',
-  },
+  initialState: initialState,
   reducers: {
-    toggleSelectAll: (state, { payload }) => {
-      state.selectAll = !state.selectAll;
-      if (!state.selectAll) {
-        state.selectedItems = [];
-      } else {
-        state.selectedItems = state.data.map((user) => user.id);
-      }
+    addUserCurrent(state, { payload }) {
+      const { token, dataUser } = payload;
+
+      console.log(payload);
+
+      state.userCurrent = dataUser;
+      state.token = token;
+      localStorage.setItem('dataUser', JSON.stringify(dataUser));
+      localStorage.setItem('token', token);
     },
-    toggleSelectItem: (state, { payload }) => {
-      const index = state.selectedItems.indexOf(payload);
-      if (index === -1) {
-        state.selectedItems.push(payload);
-      } else {
-        state.selectedItems.splice(index, 1);
-      }
+    deleteUserCurrent(state, _) {
+      state.userCurrent = {};
+      state.token = '';
+      localStorage.removeItem('dataUser');
+      localStorage.removeItem('token');
     },
   },
   extraReducers: (builder) => {
@@ -39,14 +40,6 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.data = payload;
-      })
-      .addCase(getUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(getUser.fulfilled, (state, { payload }) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.userUpdate = payload;
       })
       .addCase(getUsers.rejected, (state, { payload }) => {
         state.errorMessage = payload;
@@ -64,12 +57,10 @@ const userSlice = createSlice({
         if (index !== -1) {
           state.data.splice(index, 1);
         }
-
-        console.log(action);
       });
   },
 });
 
 const { actions, reducer } = userSlice;
-export const { toggleSelectAll, toggleSelectItem } = actions;
+export const { addUserCurrent, deleteUserCurrent } = actions;
 export default reducer;

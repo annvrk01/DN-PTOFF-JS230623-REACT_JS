@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { googleLogout } from '@react-oauth/google';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { addUserCurrent, deleteUserCurrent } from '../../../../../redux/slice/userSlice';
 import LogoTiki from '../../../../../assets/images/logo-tiki.png';
 import SearchIcon from '../../../../../assets/images/search-icon.png';
 import HomeBlueIcon from '../../../../../assets/images/home-blue-icon.png';
@@ -7,10 +11,28 @@ import CartBlueIcon from '../../../../../assets/images/cart-blue-icon.png';
 import LocationIcon from '../../../../../assets/images/location-icon.png';
 import CategoryIcon from '../../../../../assets/images/category-icon.png';
 import ChatIcon from '../../../../../assets/images/chat-icon.png';
-import { Link } from 'react-router-dom';
 import './styles.scss';
+import { screenUrl } from '../../../../../constants/screen/screenUrl';
 
 function Header() {
+  const { token, userCurrent } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleOnLogout = () => {
+    googleLogout();
+    navigate(screenUrl.LOGIN);
+    dispatch(deleteUserCurrent());
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userCurrent = JSON.parse(localStorage.getItem('dataUser'));
+
+    if (!token || !userCurrent) return;
+    dispatch(addUserCurrent({ token, dataUser: userCurrent }));
+  }, []);
+
   return (
     <header id="header" className="header">
       <div className="container">
@@ -20,11 +42,7 @@ function Header() {
           </Link>
           <div className="header__search">
             <img src={SearchIcon} alt="" className="header__search-icon" />
-            <input
-              type="text"
-              className="header__search-input"
-              placeholder="Rẻ mỗi ngày, không chỉ một ngày"
-            />
+            <input type="text" className="header__search-input" placeholder="Rẻ mỗi ngày, không chỉ một ngày" />
             <button className="header__search-btn">Tìm kiếm</button>
 
             <div className="header__search-result"></div>
@@ -34,7 +52,7 @@ function Header() {
               <img src={HomeBlueIcon} alt="" className="header__action-btn-icon" />
               Trang chủ
             </Link>
-            <button className="header__action-btn header__btn-account modal__btn-open">
+            <button className={`header__action-btn header__btn-account modal__btn-open ${token ? 'login' : ''}`}>
               <img src={SmileIcon} alt="" className="header__action-btn-icon" />
               <Link to="/login" className="header__btn-login">
                 Đăng nhập
@@ -44,9 +62,9 @@ function Header() {
               <ul className="header__menu-dropdown">
                 <li className="header__menu-dropdown-item header__info">
                   <div className="header__info-avatar">
-                    <img src="" alt="" />
+                    <img src={token ? userCurrent?.avatar : ''} alt="" />
                   </div>
-                  <p className="header__info-name"></p>
+                  <p className="header__info-name">{token ? userCurrent?.fullName : ''}</p>
                 </li>
                 <li className="header__menu-dropdown-item">
                   <a href="#!" className="header__menu-dropdown-link">
@@ -59,7 +77,7 @@ function Header() {
                   </a>
                 </li>
                 <li className="header__menu-dropdown-item">
-                  <a href="#!" className="header__menu-dropdown-link header__btn-logout">
+                  <a href="#!" className="header__menu-dropdown-link header__btn-logout" onClick={handleOnLogout}>
                     Đăng xuất
                   </a>
                 </li>

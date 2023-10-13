@@ -2,7 +2,7 @@ import React from 'react';
 import { Backdrop, Box, Button, Grow, Modal, Paper, Stack, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import warningIcon from '../../../../../../assets/images/warning-icon.png';
-import { deleteUser } from '../../../../api/userApi';
+import { deleteUser } from '../../../../../../api/userApi';
 
 const style = {
   position: 'absolute',
@@ -19,7 +19,6 @@ const style = {
 function ModalRemoveUser(props) {
   const { open, selectedItems, handleClose, handleClearSelected } = props;
   const dispatch = useDispatch();
-  const users = useSelector((state) => state.users);
 
   const handleRemoveUser = () => {
     selectedItems.forEach((userId) => {

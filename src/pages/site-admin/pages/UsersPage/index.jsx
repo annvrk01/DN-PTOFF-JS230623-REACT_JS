@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { screenUrl } from '../../../../constants/screen/screenUrl';
 import { UsersTable } from './UsersTable';
-import { getUsers } from '../../api/userApi';
 import {
   Box,
   Button,
@@ -20,21 +19,25 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Loading from '../../../../components/Loading';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
-import Loading from '../../components/atoms/Loading';
 import * as XLSX from 'xlsx';
+import { getUsers } from '../../../../api/userApi';
 
 UsersPage.propTypes = {};
 
 function UsersPage() {
   const users = useSelector((state) => state.users);
   const dispatch = useDispatch();
+  // const [filters, setFilters] = useState([]);
+  const [select, setSelect] = useState({
+    order: '',
+    spent: '',
+  });
 
   useEffect(() => {
     dispatch(getUsers());
-
-    // return () => promise.abort();
   }, []);
 
   const handleExportFile = () => {
@@ -56,6 +59,10 @@ function UsersPage() {
       return parsedData;
     };
   };
+
+  const handleFilters = useMemo(() => {
+    // const filters = users.filter(user => )
+  }, []);
 
   return (
     <div>

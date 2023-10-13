@@ -128,7 +128,29 @@
   }
 
   &__login-other {
-    @include dFlexCol(center, $gap: 8px);
+    @include dFlexCol(center, center, 8px);
+  }
+
+  &__btn-google,
+  &__btn-facebook {
+    @include dFlex(center, $gap: 8px);
+    @include heading5();
+
+    width: 100%;
+    padding: 6px 16px;
+    border: 1px solid $borderGray;
+    border-radius: 5px;
+    text-align: center;
+
+    img {
+      width: 28px;
+    }
+  }
+
+  &__btn-facebook {
+    img {
+      width: 42px;
+    }
   }
 
   &__footer-btn {

@@ -2,28 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Avatar,
   Box,
-  Button,
   Card,
-  FormControlLabel,
-  FormLabel,
-  Paper,
   Radio,
-  RadioGroup,
   Stack,
+  Paper,
   Switch,
+  Button,
+  Avatar,
+  FormLabel,
+  RadioGroup,
   Typography,
+  FormControlLabel,
 } from '@mui/material';
 import theme from '../../../../theme';
 import AddAPhotoOutlinedIcon from '@mui/icons-material/AddAPhotoOutlined';
 import BackButtonLink from '../../components/atoms/BackButtonLink';
 import Input from '../../components/atoms/Input';
-import { addUser, getUser, updateUser } from '../../api/userApi';
+import { addUser, updateUser } from '../../../../api/userApi';
 import { screenUrl } from '../../../../constants/screen/screenUrl';
 import { storage } from '../../../../firebase';
-import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { imageUrl } from '../../../../constants/images';
+import Loading from '../../../../components/Loading';
+import moment from 'moment/moment';
+import generatePassword from '../../../../utils/generatePassword';
+import validateField from '../../../../utils/validateField';
 
 function UpdateUserPage() {
   const dispatch = useDispatch();
@@ -35,6 +40,7 @@ function UpdateUserPage() {
     id: uuidv4(),
     fullName: '',
     email: '',
+    password: generatePassword(),
     country: '',
     state: '',
     address: '',
@@ -43,8 +49,9 @@ function UpdateUserPage() {
     gender: 'female',
     order: 0,
     spent: 0,
-    avatar: 'https://material-kit-react.devias.io/assets/avatars/avatar-carson-darrin.png',
+    avatar: imageUrl.AVATAR_DEFAULT,
     isPublic: true,
+    createdAt: moment().format(),
   });
   const [errorMessage, setErrorMessage] = useState({
     fullName: '',
@@ -52,74 +59,45 @@ function UpdateUserPage() {
     address: '',
     phone: '',
   });
+  const [avatar, setAvatar] = useState();
   const [imageUpload, setImageUpload] = useState(null);
-  const [imageUrls, setImageUrls] = useState([]);
-  const imagesListRef = ref(storage, 'images/');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleUploadFile = () => {
+  const handlePreviewAvatar = (e) => {
+    const file = e.target.files[0];
+
+    file.preview = URL.createObjectURL(file);
+
+    setAvatar(file);
+    setImageUpload(file);
+  };
+
+  const handleUploadImage = () => {
     if (imageUpload == null) return;
 
-    const imageRef = ref(storage, `images/${imageUpload.name}`);
+    const imageRef = ref(storage, `images/${imageUpload.name + uuidv4()}`);
+
+    setIsLoading(true);
 
     uploadBytes(imageRef, imageUpload).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
-        setImageUrls((prev) => [...prev, url]);
+        setIsLoading(false);
+        setUser({ ...user, avatar: url });
       });
     });
-  };
-
-  const validateField = (value, field) => {
-    if (!value || value.trim() === '') {
-      return 'Trường bạn nhập không được để trống';
-    }
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    const phonePattern = /^\d{10}/;
-
-    switch (field) {
-      case 'fullName':
-        if (value.length < 3) {
-          return 'Họ và tên phải có ít nhất 3 ký tự';
-        } else {
-          return '';
-        }
-
-      case 'email':
-        if (!emailPattern.test(value)) {
-          return 'Email không hợp lệ';
-        } else {
-          return '';
-        }
-
-      case 'address':
-        if (value.length < 5) {
-          return 'Địa chỉ phải có ít nhất 5 ký tự';
-        } else {
-          return '';
-        }
-
-      case 'phone':
-        if (!phonePattern.test(value)) {
-          return 'Số điện thoại không hợp lệ';
-        } else {
-          return '';
-        }
-
-      default:
-        break;
-    }
   };
 
   const handleOnChange = (e) => {
     const { name, value, checked } = e.target;
 
+    setErrorMessage((prevErrors) => ({
+      ...prevErrors,
+      [name]: validateField(value, name),
+    }));
+
     setUser((prevUser) => ({
       ...prevUser,
       [name]: name === 'isPublic' ? checked : value,
-    }));
-
-    setErrorMessage((prevErrors) => ({
-      ...prevErrors,
-      [name]: validateField(name, value),
     }));
   };
 
@@ -153,19 +131,11 @@ function UpdateUserPage() {
     setUser({ ...userUpdate });
   }, []);
 
-  useEffect(() => {
-    listAll(imagesListRef).then((res) => {
-      res.items.forEach((item) => {
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url]);
-        });
-      });
-    });
-  }, []);
+  console.log(errorMessage);
 
-  console.log(imageUrls);
-
-  return (
+  return isLoading ? (
+    <Loading />
+  ) : (
     <Stack>
       <BackButtonLink linkTo={screenUrl.ADMIN_USERS} />
       <Stack direction="row" mx={3} my={4} alignItems="center" gap={2} flex={1}>
@@ -208,12 +178,8 @@ function UpdateUserPage() {
                 },
               }}
             >
-              <img
-                src="https://material-kit-pro-react.devias.io/assets/avatars/avatar-anika-visser.png"
-                alt=""
-                style={{ width: 80, height: 80, objectFit: 'cover' }}
-              />
-              <input type="file" hidden onChange={(e) => setImageUpload(e.target.files[0])} />
+              <img src={avatar?.preview || user.avatar} alt="" style={{ width: 80, height: 80, objectFit: 'cover' }} />
+              <input type="file" hidden onChange={handlePreviewAvatar} />
               <Stack
                 className="icon"
                 justifyContent="center"
@@ -242,7 +208,7 @@ function UpdateUserPage() {
                 padding: '10px',
               }}
               variant="contained"
-              onClick={handleUploadFile}
+              onClick={handleUploadImage}
             >
               Thay đổi
             </Button>

@@ -17,7 +17,7 @@ export const getUser = createAsyncThunk('user/getUser', async (userId, thunkAPI)
   return res.data;
 });
 
-export const addUser = createAsyncThunk('user/postUser', async (user, thunkAPI) => {
+export const addUser = createAsyncThunk('user/addUser', async (user, thunkAPI) => {
   const res = await axiosClient.post('/users', user, {
     signal: thunkAPI.signal,
   });
