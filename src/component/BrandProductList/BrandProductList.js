@@ -1,33 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect} from "react";
+// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux"
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from 'react-responsive-carousel';
-import { PRODUCT } from "../../utils";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
-// import ConfirmDelete from './../../../components/molecules/confirm'
-
-import axios from 'axios';
+import { fetchTopBrand } from "../../redux/api/topBrandAPI";
 const BrandProductlist = (props) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const dispatch = useDispatch();
-  const products = useSelector(state => state.products)
-  const [brandproductsAPI, setBrandProductAPI] = useState([]);
+  const topBrands = useSelector(state => state.topBrands)
   useEffect(() => {
-    axios.get(`http://localhost:3000/vitamin`)
-      .then(res => {
-        // console.log(res, 'res')
-        setBrandProductAPI(res.data)
-      })
-      .catch(error => console.log(error));
+    dispatch(fetchTopBrand())
   }, [])
-
-
   return (
     <>
-        {brandproductsAPI.map((item) => (
+        {topBrands.data?.map((item) => (
           <div className="favourite-brand-card">
             <a href="">
               <div className="brand-product">
@@ -42,7 +26,6 @@ const BrandProductlist = (props) => {
           </div>
 
         ))}
-
     </>
   );
 };

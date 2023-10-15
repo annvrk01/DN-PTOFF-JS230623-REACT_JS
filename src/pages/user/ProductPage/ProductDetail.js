@@ -1,31 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux/es/hooks/useSelector';
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-// import "../../../styles/detailProduct/detailproduct.css"
+import "../../../styles/detailProduct/detailproduct.css"
+import { addToCart } from '../../../redux/reducer/cartSlice';
 const ProductDetail = () => {
     const navigate = useNavigate();
-    const { items: products} = useSelector((state) => state.products)
-    const [product, setProduct] = useState(null)
     let { id } = useParams();
+    const bestSellers = useSelector(state => state.bestSellers)
+    const dispatch = useDispatch()
+    const [bestSeller, setBestSeller] = useState(null)
     useEffect(() => {
-        if (id) {
-            const item = products.find((x) => Number(x.id) === Number(id));
-            if (item) {
-                setProduct(item)
-            }
+      if (id) {
+        const item = bestSellers.data?.find((x) => Number(x.id) === Number(id));
+        if (item) {
+            setBestSeller(item)
         }
+      }
     }, []);
+    const handleAddtoCart = (bestSeller) => {
+        dispatch(addToCart(bestSeller))
+        console.log(addToCart(bestSeller))
+    }
     return (
         <div className="container">
             {
-                product && (
+                bestSeller && (
                     <div className="detail-infomation">
                         <div className="detail-infomatio-left">
                             <div className="img-info-container">
                                 <div className="carasel-gallery">
                                     <div className="slider-gallery-area">
-                                        <img src={product.img} />
+                                        <img src={bestSeller.img} />
                                     </div>
                                     <div className="button-area">
                                         <div className="previous-btn">
@@ -48,13 +54,13 @@ const ProductDetail = () => {
                             <div className="product-name">
                                 <span>
                                     <h3>
-                                        {product.title}
+                                        {bestSeller.title}
                                     </h3>
                                 </span>
                             </div>
                             <div className="product-price">
                                 <span>
-                                    {product.price}
+                                    {bestSeller.price}
                                 </span>
                                 <span> / </span>
                                 <span>Hộp</span>
@@ -65,7 +71,7 @@ const ProductDetail = () => {
                                         <td>Đơn vị tính</td>
                                         <td>
                                             <p>
-                                                {product.unit}
+                                                {bestSeller.unit}
                                             </p>
                                         </td>
                                     </tr>
@@ -80,7 +86,7 @@ const ProductDetail = () => {
                                     <tr className="quantityOfUnit">
                                         <td>Quy cách</td>
                                         <td>
-                                            {product.quantityofunit}
+                                            {bestSeller.quantityofunit}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -93,14 +99,16 @@ const ProductDetail = () => {
                                     </div>
                                     <span className="quantityInStock">
                                         <p>
-                                            Hiện đang có {product.quantityOfStock} sản phẩm
+                                            Hiện đang có {bestSeller.quantityOfStock} sản phẩm
                                         </p>
                                     </span>
                                 </div>
                             </div>
                             <div className="button-addtocart-Area">
                                 <div className="btn-addToCart">
-                                    <button className="AddToCart-button" data-id="${product.id}">
+                                    <button className="AddToCart-button" onClick={() => {
+                                        handleAddtoCart(bestSeller);
+                                    }}>
                                         Thêm vào giỏ hàng
                                     </button>
                                 </div>

@@ -1,11 +1,11 @@
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
-import productReducer,{productsFetch} from '../reducer/productSlice';
-import { productsApi } from '../api/productAPI'
-export  const store = configureStore({
+import { configureStore } from '@reduxjs/toolkit';
+import bestSellerSlice from './../reducer/bestSellersSlice'
+import topBrandsSlice from './../reducer/topBrandSlice'
+import cartSlice from '../reducer/cartSlice'
+export const store = configureStore({
   reducer: {
-    products: productReducer,
-    [productsApi.reducerPath]: productsApi.reducer,
-  },
-  middleware: (getDefaultMiddleware)=> getDefaultMiddleware().concat(productsApi.middleware)
+    bestSellers: bestSellerSlice,
+    topBrands: topBrandsSlice,
+    cart:  cartSlice
+  }
 })
-store.dispatch(productsFetch());

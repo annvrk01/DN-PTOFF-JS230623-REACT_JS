@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Provider, useSelector, useDispatch } from 'react-redux';
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { useGetAllProductsQuery } from "../../redux/api/productAPI";
+import { fetchBestSeller } from "../../redux/api/bestSellerAPI";
 const Productlist = (props) => {
+    const bestSellers = useSelector(state => state.bestSellers)
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    // const { items: products, status } = useSelector((state) => state.products)
-    const { data } = useGetAllProductsQuery();
     const handleDetail = (product) => {
         navigate("chi-tiet-san-pham/" + product.id)
-        // console.log("okokoko")
     };
+    useEffect(()=> {
+        dispatch(fetchBestSeller())
+    },[])
     return (
         <div>
             <div className="best-seller-container">
@@ -20,7 +20,7 @@ const Productlist = (props) => {
                     <h2>Sản phẩm bán chạy</h2>
                 </div>
                 <div className="best-seller-list">
-                    {data && data.map((item) => (
+                    { bestSellers.data?.map((item) => (
 
                         <div className="best-seller-product-card">
                             <a>

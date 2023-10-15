@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 // import { useDispatch, useSelector } from 'react-redux';
 // import { setName, setEmail, setLoading, setError } from '../../redux/action/userAction';
 // import axios from 'axios';
-import "../../styles/login-register/loginReg.css"
+// import "../../styles/login-register/loginReg.css"
 function LoginRegister() {
   // const dispatch = useDispatch();
   // const { name, email, loading, error } = useSelector((state) => state.user);
