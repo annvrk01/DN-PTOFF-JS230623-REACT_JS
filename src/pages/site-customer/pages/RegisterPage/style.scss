@@ -1,0 +1,56 @@
+/* main register */
+.register {
+  p {
+    display: block;
+  }
+
+  h3 {
+    margin: 24px 0;
+    text-align: center;
+    color: #b4975f;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .input-main {
+    padding: 5px 0;
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .input-size {
+    font-size: 24px;
+    border: 1px solid #b4975a;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+
+  .input-submit {
+    font-size: 26px;
+    background-color: #990d23;
+    color: aliceblue;
+    border-radius: 4px;
+    border: none;
+  }
+
+  .main-row {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    width: 1200px;
+    margin: auto;
+  }
+
+  .color {
+    background-color: #ebca89;
+  }
+
+  button {
+    border-radius: 10px;
+    color: #990d23;
+    margin-left: 40px;
+    background-color: #b4975a;
+    font-size: 16px;
+    line-height: 30px;
+    border: 1px solid #b4975a;
+  }
+}
