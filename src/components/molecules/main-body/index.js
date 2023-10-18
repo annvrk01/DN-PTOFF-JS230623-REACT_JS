@@ -2,23 +2,29 @@ import React, { useEffect, useState } from "react";
 import "./main.css"
 import FakeData from "../../../util/FakeData";
 import Category from "../../atoms/Category";
+import { useParams } from "react-router-dom";
 
 export default function MainBody() {
     const [showingCategs, setShowingCategs] = useState([]);
-    
+
+    const { categId } = useParams();
+    useEffect(
+        () => {
+            console.log("categId " + categId);
+            if (!categId) return;
+        }, [categId])
+
     useEffect(() => {
+
         let allCategs = FakeData.fakeProductCategories;
 
         let showingCategs = [];
         allCategs.forEach(
             each => {
-                let isTopLevelCategory = each.parent_category === 0;
-
-                if (isTopLevelCategory) {
-                    showingCategs.push(each);
-                }
+                showingCategs.push(each);
             }
         )
+        console.log('showingCategs = ',showingCategs);
         setShowingCategs(showingCategs);
     }, [])
     return (
@@ -111,7 +117,23 @@ export default function MainBody() {
                         : (
                             showingCategs.map(
                                 eachCateg => {
-                                    return <Category eachCateg={eachCateg} key={eachCateg.id}></Category>
+                                    if(categId){
+                                        if(categId != eachCateg.id){
+                                            console.log('not match ! ' + categId + ", eachCateg.id " + eachCateg.id);
+                                        
+                                            return null;
+                                        }else{
+                                            return <Category eachCateg={eachCateg} key={eachCateg.id}></Category>
+                                        }
+                                    }
+                                    else{
+                                        let isTopLevelCategory = eachCateg.parent_category === 0;
+
+                                        if (isTopLevelCategory) {
+                                            return <Category eachCateg={eachCateg} key={eachCateg.id}></Category>
+                                        }
+                                        return null;
+                                    }
                                 }
                             )
                         )

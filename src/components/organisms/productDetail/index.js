@@ -103,7 +103,7 @@ export default function ProductDetail() {
                         <div className="nav-search-bar">
                             <form id="searchForm">
                                 <input type="text" className="search-bar" name="q" placeholder="search 3d models ..."
-                                    readOnly value="intergalactic spaceship version  blender- eevee">
+                                    readOnly value={product.title_text}>
                                 </input>
                                 <button className="ss-search" id="search-button2" type="button">
                                 </button>
@@ -120,8 +120,13 @@ export default function ProductDetail() {
                                 ? <AccountHambuger />
                                 : <LoginRegister />
                         }
-                        <ShopBasket isCartShowing={isCartShowing} setCartShowing={setCartShowing} 
-                        cart = {cart}  setCart = {setCart} />
+                        {
+                            hadLoggedIn()
+                                ? <ShopBasket isCartShowing={isCartShowing} setCartShowing={setCartShowing} 
+                                cart = {cart}  setCart = {setCart} />
+                                : null
+                        }
+                        
                         <div className="clearfix"></div>
                     </div>
                 </div>
@@ -287,7 +292,7 @@ export default function ProductDetail() {
                     <div className="product-page-content-wrapper">
                         <div className="product-page-header has-clearfix">
                             <div className="page-breadcrumb">
-                                <a href="https://free3d.com/3d-models/" className="home-link">3D Models</a>
+                                <a href="/" className="home-link">3D Models</a>
                                 {
                                     breadCrumbItems?.map(
                                         (eachItem, idx) => {
@@ -717,5 +722,6 @@ function retrieveCategoryHieracy(product) {
             || nextId == -1)
             break;
     }
+    categHieracy = categHieracy.reverse();
     return categHieracy;
 }
