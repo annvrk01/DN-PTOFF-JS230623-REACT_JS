@@ -8,9 +8,9 @@ const Header = () => {
                     <div className="header-wrapper">
                         <div className="logo">
                         
-                            <a href="#">
+                        <Link to={"/"}>
                                 <img src="/assets/img/logoDO.png" alt="" />
-                            </a>
+                                </Link>
                         </div>
                         <div className="search">
                             <input type="text" placeholder="Tìm tên thuốc, thực phẩm,..." />
@@ -31,7 +31,6 @@ const Header = () => {
                 </header>
             </div>
         );
-    
 }
 
 export default Header;

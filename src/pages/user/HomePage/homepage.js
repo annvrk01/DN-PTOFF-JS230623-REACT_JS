@@ -3,10 +3,10 @@ import React from 'react';
 import Banner from '../../../component/Banner/Banner';
 import Productlist from '../../../component/Productlist/Productlist';
 import BrandProductlist from '../../../component/BrandProductList/BrandProductList';
+import Category from '../../../component/category/Category';
 const Homepage = () => {
   return (
     <>
-
       <div className="body-container">
         <div className="wrapper">
           <div className="heading-container">
@@ -116,170 +116,7 @@ const Homepage = () => {
                 <img src="/assets/img/item3.webp" alt="" />
                 <h2>Danh mục nổi bật</h2>
               </div>
-              <div className="category-list">
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/than_kinh_nao.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Thần kinh não</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img
-                        src="/assets/img/tpcn_vitamin_khoang_chat_.webp"
-                        alt=""
-                      />
-                    </div>
-                    <div className="category-name">
-                      <p> Vitamin khoáng chất</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>25 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/suc_khoe_tim_mach.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Sức khoẻ tim mạch</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>145 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img
-                        src="/assets/img/tang_suc_de_khang_mien_dich.webp"
-                        alt=""
-                      />
-                    </div>
-                    <div className="category-name">
-                      <p> Tăng sức đề kháng, miễn dịch</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>91 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/ho_tro_tieu_hoa.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Hỗ trợ tiêu hoá</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>71 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/sinh_li_noi_tiet_to.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Sinh lý - nội tiết tố</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>71 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/dinh_duong_.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Dinh dưỡng</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>57 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/ho_tro_lam_dep.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Hỗ trợ làm đẹp</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/ho_tro_tinh_duc.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Hỗ trợ tình dục</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/cham_soc_da_mat.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Chăm sóc da mặt</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/than_kinh_nao.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Thần kinh não</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-                <div className="category-item">
-                  <a href="">
-                    <div className="item-img">
-                      <img src="/assets/img/giai_phap_lan_da.webp" alt="" />
-                    </div>
-                    <div className="category-name">
-                      <p> Giải pháp làn da</p>
-                    </div>
-                    <div className="quantity-product">
-                      <p>75 sẩn phẩm</p>
-                    </div>
-                  </a>
-                </div>
-              </div>
+            <Category/>
             </div>
           </div>
         </div>

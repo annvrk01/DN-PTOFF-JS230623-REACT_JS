@@ -1,22 +1,31 @@
 import React from "react";
 import Homepage from "../../pages/user/HomePage/homepage";
-import { Route, Routes, Outlet } from "react-router-dom";
+import { Route, Routes, Outlet, Router } from "react-router-dom";
 import ProductDetail from "../../pages/user/ProductPage/ProductDetail";
 import Header from "../../pages/user/theme/header/Header";
 import Menubar from "../../component/menuBar/Menubar";
 import Footer from "../../pages/user/theme/footer/Footer";
 import LoginRegister from "../../pages/login-reg/LoginRegister";
 import Cart from "../../pages/user/cart/Cart";
+import CategoryPage from "../../pages/user/categoryPage/CategoryPage";
 const renderUserRouter = () => {
     const userRouters = [
         {
             path: "/",
-            component: <Homepage />
+            component: <Homepage/>
         },
         {
-            path: "/chi-tiet-san-pham/:id",
+            path: "/sanpham/:id/:title",
             component: <ProductDetail />
         },
+        {
+            path:"danh-muc-san-pham/:link",
+            component:<CategoryPage/>
+        },
+        {
+            path:"/gio-hang",
+            component:<Cart/>
+        }
     ]
     return (
         <Routes>
@@ -42,7 +51,7 @@ const renderUserRouter = () => {
                 </>
             }
             >
-                <Route path="/them-vao-gio-hang" element={<Cart/>}/>
+            <Route path="/them-vao-gio-hang" element={<Cart/>}/>
             </Route>
             <Route path="/dangnhap" element={<LoginRegister/>}/>
         </Routes>
@@ -50,6 +59,5 @@ const renderUserRouter = () => {
 }
 const RouterCustom = () => {
     return renderUserRouter()
-
 }
 export default RouterCustom

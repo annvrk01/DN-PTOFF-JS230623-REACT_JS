@@ -9,16 +9,16 @@ const Cart = () => {
             <div className="cart-wrapper">
                         <div className="list-cart">
                         <a href="" className="cart-item">
-                            <img src="" alt="" />
+                            <img src="https://cdn.nhathuoclongchau.com.vn/unsafe/256x256…od.s3-sgn09.fptcloud.com/DSC_09709_919fd2350c.jpg" alt="" />
                         </a>
                         <div className="cart-body">
                             <div className="cart-selector">
                                 <h3 className="product-title">
-    
+                                Viên uống proMUM New Live bổ sung các chất dinh dưỡng cho phụ nữ mang thai và cho con bú (2 vỉ x 15 viên)
                                 </h3>
                                 <div className="price">
                                     <p>
-    
+                                    319.000đ
                                     </p>
                                 </div>
                                 <div className="quantity">
@@ -46,7 +46,9 @@ const Cart = () => {
                 <div className="cart-total-title">
                     <h3>Tổng tiền</h3>
                 </div>
-                <div className="price-item"></div>
+                <div className="price-item">
+                    <h1> 319.000đ</h1>
+                </div>
                 <div className="pay-btn">
                     <button>Thanh toán</button>
                 </div>
