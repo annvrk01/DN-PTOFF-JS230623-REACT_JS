@@ -6,7 +6,7 @@ export default function ProductBreadcrumb(props) {
   return (
     <span className="current-page-title" id="breadcrumb-product-category">
       <a
-        href="https://free3d.com/3d-models/aircraft"
+        href={"/" + breadCrumbItem.id}
         className="link-to-category"
       >
         {breadCrumbItem.name}
