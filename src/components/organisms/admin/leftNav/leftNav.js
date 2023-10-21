@@ -21,19 +21,22 @@ import CustomerHome from "../../customer-home";
 import ProductDetail from "../../product-detail";
 
 export default function LeftNav() {
+  const reactLocation = useLocation();
+  const reactNavigate = useNavigate();
 
-  const location = useLocation();
-  const navigate = useNavigate();
   return (
     <Routes>
       <Route path="/" exact element={<CustomerHome />} />
       <Route path="/product-detail" element={<ProductDetail />} />
       <Route path="/product-detail/:id" element={<ProductDetail />} />
-      <React.Fragment>
-        {/* <SideNav onSelect={selected => {
+
+      <Route basename="/admin">
+        <React.Fragment>
+          <SideNav onSelect={selected => {
+            console.log('onSelect SideNav');
             const to = "/" + selected;
             if (location.pathname !== to) {
-              navigate(to);
+              history.push(to);
             }
           }}
           >
@@ -77,83 +80,20 @@ export default function LeftNav() {
                 <NavText>Adddata</NavText>
               </NavItem>
             </SideNav.Nav>
-          </SideNav> */}
+          </SideNav>
 
-        <Route path="/admin" element={<HomeCopy />} />
-        <Route path="/admin/Services" element={<Services />} />
-        <Route path="/admin/LineChart" element={<LineChart />} />
-        <Route path="/admin/PieChart" element={<PieChart />} />
+          <main className="mainWrap">
+            <Route path="/" exact element={<HomeCopy />} />
+            <Route path="/home" element={<HomeCopy />} />
+            <Route path="/Services" element={<Services />} />
+            <Route path="/LineChart" element={<LineChart />} />
+            <Route path="/PieChart" element={<PieChart />} />
 
-        <Route path="/admin/Search" element={<Search />} />
-        <Route path="/admin/Adddata" element={<Adddata />} />
-      </React.Fragment> 
-
-
-      <Route
-          render={({ location, history }) => (
-            <React.Fragment>
-              <SideNav onSelect={selected => {
-                const to = "/" + selected;
-                if (location.pathname !== to) {
-                  history.push(to);
-                }
-              }}
-              >
-                <SideNav.Toggle />
-                <SideNav.Nav defaultSelected="home">
-                  <NavItem eventKey="home">
-                    <NavIcon>
-                      <img src={homeicon} />
-                    </NavIcon>
-                    <NavText>Home</NavText>
-                  </NavItem>
-                  <NavItem eventKey="Services">
-                    <NavIcon>
-                      <img src={serviceicon} />
-                    </NavIcon>
-                    <NavText>Charts</NavText>
-                    <NavItem eventKey="LineChart">
-                      <NavText>Line Chart</NavText>
-                    </NavItem>
-                    <NavItem eventKey="PieChart">
-                      <NavText>Pie Chart</NavText>
-                    </NavItem>
-                  </NavItem>
-
-                  <NavItem eventKey="#">
-                    <NavIcon>
-                      <img src={assisticon} />
-                    </NavIcon>
-                    <NavText>Form</NavText>
-                  </NavItem>
-                  <NavItem eventKey="Search">
-                    <NavIcon>
-                      <img src={searchicon} />
-                    </NavIcon>
-                    <NavText>Search</NavText>
-                  </NavItem>
-                  <NavItem eventKey="Adddata">
-                    <NavIcon>
-                      <img src={addUsericon} />
-                    </NavIcon>
-                    <NavText>Adddata</NavText>
-                  </NavItem>
-                </SideNav.Nav>
-              </SideNav>
-
-              <main className="mainWrap">
-                <Route path="/" exact element={<HomeCopy />} />
-                <Route path="/home" element={<HomeCopy />} />
-                <Route path="/Services" element={<Services />} />
-                <Route path="/LineChart" element={<LineChart />} />
-                <Route path="/PieChart" element={<PieChart />} />
-
-                <Route path="/Search" element={<Search />} />
-                <Route path="/Adddata" element={<Adddata />} />
-              </main>
-            </React.Fragment>
-          )}
-        />
+            <Route path="/Search" element={<Search />} />
+            <Route path="/Adddata" element={<Adddata />} />
+          </main>
+        </React.Fragment>
+      </Route>
     </Routes>
   );
 }

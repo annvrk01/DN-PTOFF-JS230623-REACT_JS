@@ -1,0 +1,37 @@
+{
+  "ThumbBox": [
+    {
+      "title": "Box 1",
+      "description": "Lorem Ipsum is simply dummy ",
+      "link": "More",
+      "url": ""
+    },
+    {
+      "title": "Box 2",
+      "description": "Lorem Ipsum is simply dummy ",
+      "link": "More",
+      "url": ""
+    },
+    {
+      "title": "Box 3",
+      "description": "Lorem Ipsum is simply dummy ",
+      "link": "More",
+      "url": ""
+    },
+    {
+      "title": "Box 4",
+      "description": "Lorem Ipsum is simply dummy ",
+      "link": "More",
+      "url": ""
+    }
+  ],
+
+  "ContactDetails": [
+    {
+      "address": "3 rue des Champs ElysÃ©es 75008 PARIS",
+      "country": "France",
+      "email": "Email: email@example.com",
+      "phone": "Tel. +33 12 56 11 51 84"
+    }
+  ]
+}
