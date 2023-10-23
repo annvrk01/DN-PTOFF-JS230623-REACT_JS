@@ -1,0 +1,8 @@
+.edit {
+  border: none;
+  background: url(./edit.png) top left no-repeat;
+}
+.delete {
+  border: none;
+  background: url(./trash.png) top left no-repeat;
+}
