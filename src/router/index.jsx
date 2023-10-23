@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { layoutAdmin, layoutCustomer } from '../config/routeConfig';
-import { ErrorPage } from '../config/loadableRoutes';
+import { ErrorPage } from '../config/loadableRoutes/customerLoadable';
 import LayoutAdminContainer from '../pages/site-admin/components/organisms/LayoutAdminContainer';
 import LayoutContainer from '../pages/site-customer/components/organisms/LayoutContainer';
 

@@ -1,19 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { screenUrl } from '../../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../../constants/screen';
 import { Box, Stack } from '@mui/material';
 import SidebarAdmin from '../SidebarAdmin';
 import HeaderAdmin from '../HeaderAdmin';
 
 const LayoutAdminContainer = ({ component: Component, isHeader, isSidebar, title }) => {
   const token = localStorage.getItem('token');
+  const dataAdmin = JSON.parse(localStorage.getItem('data_admin'));
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!token) navigate(screenUrl.ADMIN_LOGIN);
+  document.title = 'Tiki Admin - ' + title;
 
-    document.title = 'Tiki Admin| ' + title;
+  useEffect(() => {
+    if (!token || !dataAdmin) navigate(SCREEN_URL.ADMIN_LOGIN);
   }, []);
 
   return (

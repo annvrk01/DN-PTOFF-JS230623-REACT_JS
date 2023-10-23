@@ -44,7 +44,6 @@
   &__description {
     @include dFlex(start, start);
 
-    background-color: $white;
     border-radius: 5px;
 
     &--heading {
@@ -56,16 +55,30 @@
     }
   }
 
+  &__info {
+    gap: 16px;
+
+    &--bg-white {
+      padding: 16px;
+      background-color: $white;
+      border-radius: 10px;
+    }
+  }
+
   &__info-image {
-    width: 444px;
-    padding: 16px;
-    border-right: 1px solid $lineColor;
+    width: 400px;
+    position: sticky;
+    top: 12px;
   }
 
   &__info-image-main {
-    width: 414px;
-    height: 414px;
     background-color: $grayLighter;
+    border: 1px solid $lineColor;
+    border-radius: 10px;
+
+    .swiper-slide {
+      height: auto;
+    }
 
     img {
       width: 100%;
@@ -75,9 +88,10 @@
   }
 
   &__info-image-list {
-    @include dFlex(start, $gap: 12px);
+    @include dGrid(4, 12px);
 
     margin-top: 8px;
+    overflow: hidden;
   }
 
   &__info-image-list img {
@@ -93,18 +107,17 @@
     }
   }
 
-  &__info-body-left {
-    @include dFlex(start, end, 16px);
+  &__info-body {
+    @include dFlex(start, start, 16px);
+  }
 
-    margin-bottom: 16px;
-    padding: 16px;
-    background-color: #fafafa;
+  &__info-body-left {
+    @include dFlexCol(start, stretch, $gap: 16px);
+    flex: 1;
   }
 
   &__info-content {
     flex: 1;
-    padding-left: 16px;
-    padding-right: 24px;
   }
 
   &__info-rating {
@@ -136,6 +149,12 @@
       width: 1px;
       background-color: $grayMedium;
     }
+  }
+
+  &__info-price-main {
+    @include dFlex(start, end, 16px);
+
+    padding-bottom: 16px;
   }
 
   &__info-price {
@@ -262,6 +281,12 @@
     @include textBody;
   }
 
+  &__info-body-right {
+    width: 368px;
+    position: sticky;
+    top: 12px;
+  }
+
   &__info-quantity {
     span {
       display: block;
@@ -308,6 +333,7 @@
   &__info-btn {
     @include dFlex(start, $gap: 12px);
 
+    width: 100%;
     margin-top: 16px;
     height: 48px;
   }
@@ -318,7 +344,6 @@
     min-width: 190px;
     width: 100%;
     height: 100%;
-    max-width: 300px;
     background-color: $redMedium;
     border-radius: 4px;
     text-transform: capitalize;
@@ -343,9 +368,6 @@
   &__detail,
   &__description {
     display: block;
-    margin-top: 16px;
-    padding: 16px;
-    padding-top: 0;
 
     &--heading {
       font-size: 20px;
@@ -358,15 +380,21 @@
   }
 
   &__detail-table-row {
-    @include dFlex(start);
+    @include dFlex(start, stretch);
   }
 
   &__detail-item {
     padding: 10px 15px;
   }
 
+  &__detail-value {
+    flex: 1;
+  }
+
   &__detail-label {
+    @include dFlex();
     width: 220px;
+    height: auto;
     background-color: $lightBg;
   }
 
@@ -423,6 +451,35 @@
   &__rating-level-number {
     color: $grayMedium;
     font-size: 11px;
+  }
+
+  &__description {
+    img {
+      margin: auto;
+      max-width: 100%;
+      height: auto !important;
+    }
+
+    h3 {
+      margin: 16px 0;
+    }
+
+    p {
+      margin-top: 5px;
+      margin-bottom: 12px;
+      line-height: 21px;
+      word-break: break-word;
+    }
+
+    ul {
+      margin: 14px 0;
+      padding-left: 40px;
+    }
+
+    li {
+      padding: 12px 0;
+      list-style: disc;
+    }
   }
 }
 

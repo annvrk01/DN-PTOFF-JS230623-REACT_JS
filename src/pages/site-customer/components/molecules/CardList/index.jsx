@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import CardItem from './CardItem';
 import './styles.scss';
 import generateProductJson from '../../../pages/HomePage/abx';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProducts } from '../../../../../api/productApi';
 
 CardList.propTypes = {};
 
@@ -34,15 +36,21 @@ const cardSuggests = [
 ];
 
 function CardList(props) {
-  const [products, setProducts] = useState([]);
+  const products = useSelector((state) => state.products);
+  const dispatch = useDispatch();
+
   const [isActive, setIsActive] = useState(0);
 
+  // useEffect(() => {
+  //   generateProductJson();
+
+  //   const productsStorage = JSON.parse(localStorage.getItem('data_product'));
+
+  //   setProducts(productsStorage || []);
+  // }, []);
+
   useEffect(() => {
-    generateProductJson();
-
-    const productsStorage = JSON.parse(localStorage.getItem('data_product'));
-
-    setProducts(productsStorage || []);
+    dispatch(fetchProducts());
   }, []);
 
   return (
@@ -67,7 +75,7 @@ function CardList(props) {
         </div>
 
         <div className="card__list">
-          {products.slice(0, 14).map((product, index) => (
+          {products?.data?.map((product, index) => (
             <CardItem key={index} product={product} />
           ))}
         </div>

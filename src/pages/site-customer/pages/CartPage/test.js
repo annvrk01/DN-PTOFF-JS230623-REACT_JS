@@ -21,7 +21,7 @@ function renderCart() {
     <div class="cart__table-group" data-product-id="${id}">
       <div class="cart__table-row">
         <div class="cart__table-col">
-          <label for="table-checkbox-${id + 99}" class="cart__table-lable">
+          <label for="table-checkbox-${id + 99}" class="cart__table-label">
             <img
               src="https://salt.tikicdn.com/ts/upload/30/24/79/8317b36e87e7c0920e33de0ab5c21b62.png"
               alt="Icon home"
@@ -33,9 +33,7 @@ function renderCart() {
       </div>
       <div class="cart__table-row">
         <div class="cart__table-col">
-        <input type="checkbox" id="table-checkbox-${
-          id + 99
-        }" class="cart__table-checkbox cart__checkbox-item" />
+        <input type="checkbox" id="table-checkbox-${id + 99}" class="cart__table-checkbox cart__checkbox-item" />
           <a href="/details" class="cart__table-product">
             <img
               src="${image_url}"
@@ -113,10 +111,7 @@ function handleRemoveProduct() {
     const index = listCartByName.findIndex((item) => item.id === parseInt(dataProductId));
     listCartByName.splice(index, 1);
 
-    localStorage.setItem(
-      'list_cart',
-      JSON.stringify([{ user_name: userName, product: listCartByName }])
-    );
+    localStorage.setItem('list_cart', JSON.stringify([{ user_name: userName, product: listCartByName }]));
     updateTotalPrice();
   }
 
@@ -129,9 +124,7 @@ function handleRemoveProduct() {
       checkedCheckboxes.forEach((checkbox) => {
         const rowGroup = checkbox.closest('.cart__table-group');
         const row = checkbox.closest('.cart__table-row');
-        const priceElRemove = parseInt(
-          row.querySelector('.cart__table-money span').getAttribute('data-money')
-        );
+        const priceElRemove = parseInt(row.querySelector('.cart__table-money span').getAttribute('data-money'));
         const dataProductId = rowGroup.getAttribute('data-product-id');
 
         if (rowGroup) {
@@ -148,9 +141,7 @@ function handleRemoveProduct() {
       } else {
         const rowGroup = e.target.closest('.cart__table-group');
         const row = e.target.closest('.cart__table-row');
-        const priceElRemove = parseInt(
-          row.querySelector('.cart__table-money span').getAttribute('data-money')
-        );
+        const priceElRemove = parseInt(row.querySelector('.cart__table-money span').getAttribute('data-money'));
         const dataProductId = rowGroup.getAttribute('data-product-id');
 
         removeRow(rowGroup, priceElRemove, dataProductId);

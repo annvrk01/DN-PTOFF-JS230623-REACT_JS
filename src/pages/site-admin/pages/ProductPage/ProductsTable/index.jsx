@@ -1,4 +1,5 @@
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Card,
@@ -12,57 +13,133 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
-import { screenUrl } from '../../../../../constants/screen/screenUrl';
-import { green, red } from '@mui/material/colors';
+import { SCREEN_URL } from '../../../../../constants/screen';
+import { useEffect } from 'react';
+import { deleteProduct, fetchProducts } from '../../../../../api/productApi';
+import Loading from '../../../../../components/Loading';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
+import ModalRemove from '../../../components/molecules/ModalRemove';
 
-export const ProductsTable = () => {
-  const products = useSelector((state) => state.products);
+export const ProductsTable = (props) => {
+  const { products } = props;
 
-  return (
-    <Card component={Paper} elevation={3} sx={{ borderRadius: 5 }}>
+  const { isLoading } = useSelector((state) => state.products);
+  const dispatch = useDispatch();
+
+  const [open, setOpen] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setItemsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleClearSelected = () => {
+    setSelectAll(false);
+    setSelectedItems([]);
+  };
+
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    const allProductIds = products?.map((user) => user.id);
+
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(allProductIds);
+    }
+  };
+
+  const handleSelectItem = (itemId) => {
+    const index = selectedItems.indexOf(itemId);
+    if (index === -1) {
+      setSelectedItems([...selectedItems, itemId]);
+    } else {
+      const updatedItems = [...selectedItems];
+      updatedItems.splice(index, 1);
+      setSelectedItems(updatedItems);
+    }
+  };
+
+  const handleRemoveProduct = () => {
+    selectedItems.forEach((productId) => {
+      dispatch(deleteProduct(productId));
+    });
+    handleClose();
+    handleClearSelected();
+  };
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, []);
+
+  return isLoading ? (
+    <Loading />
+  ) : (
+    <Card component={Paper} elevation={3}>
       <Box sx={{ minWidth: 800 }}>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow sx={{ bgcolor: 'rgba(0, 0, 0, 0.045)' }}>
               <TableCell padding="checkbox">
-                <Checkbox />
+                <Checkbox checked={selectAll} onChange={handleSelectAll} />
               </TableCell>
-              <TableCell>Tên sản phẩm</TableCell>
-              <TableCell>Số lượng</TableCell>
-              <TableCell>Giá</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell>Danh mục</TableCell>
-              <TableCell>Ngày tạo</TableCell>
-              <TableCell>Ngày cập nhật</TableCell>
-              <TableCell>Chức năng</TableCell>
+              {selectedItems.length > 0 ? (
+                <>
+                  <TableCell style={{ padding: '10px 12px' }}>
+                    <Stack component="span" gap={1} direction="row" alignItems="center">
+                      <Typography mr={1}>Đã chọn {selectedItems.length}</Typography>
+                      <Typography>|</Typography>
+                      <IconButton color="black" onClick={handleOpen}>
+                        <DeleteOutlineOutlinedIcon />
+                      </IconButton>
+                    </Stack>
+                  </TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: '10px 16px', textAlign: 'center' }}></TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell>Tên sản phẩm</TableCell>
+                  <TableCell>Số lượng</TableCell>
+                  <TableCell>Giá</TableCell>
+                  <TableCell>Danh mục</TableCell>
+                  <TableCell>Tên shop</TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>Chức năng</TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
-            {products?.map(
-              ({
-                id,
-                name,
-                quantity,
-                imageUrl,
-                price,
-                category,
-                status,
-                createdDate,
-                lastUpdatedDate,
-              }) => (
+            {products
+              ?.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+              ?.map(({ id, productName, limitProduct, thumbnailUrl, priceOdd, shopName, categoryName }) => (
                 <TableRow key={id} hover>
                   <TableCell padding="checkbox">
-                    <Checkbox />
+                    <Checkbox checked={selectedItems.includes(id)} onChange={() => handleSelectItem(id)} />
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" alignItems="center" gap={2}>
                       <img
-                        src={imageUrl[0]}
-                        alt={name}
+                        src={thumbnailUrl}
+                        alt={productName}
                         width={48}
                         height={48}
                         style={{ objectFit: 'cover', borderRadius: '10px' }}
@@ -77,19 +154,13 @@ export const ProductsTable = () => {
                           WebkitBoxOrient: 'vertical',
                         }}
                       >
-                        {name}
+                        {productName}
                       </span>
                     </Stack>
                   </TableCell>
-                  <TableCell>{quantity}</TableCell>
-                  <TableCell>
-                    {price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: status.toLowerCase() === 'còn hàng' ? green[500] : red[500] }}
-                  >
-                    {status}
-                  </TableCell>
+                  <TableCell>{limitProduct}</TableCell>
+                  <TableCell>{priceOdd.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                  <TableCell>{categoryName}</TableCell>
                   <TableCell>
                     <span
                       style={{
@@ -101,38 +172,40 @@ export const ProductsTable = () => {
                         WebkitBoxOrient: 'vertical',
                       }}
                     >
-                      {category}
+                      {shopName}
                     </span>
                   </TableCell>
-                  <TableCell>{createdDate}</TableCell>
-                  <TableCell>{lastUpdatedDate}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" gap="2">
-                      <IconButton
-                        color="primary"
-                        component={Link}
-                        to={`${screenUrl.ADMIN_PRODUCT}/${id}`}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="red">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    <IconButton
+                      color="black"
+                      component={Link}
+                      to={`${SCREEN_URL.ADMIN_EDIT_PRODUCT.replace(':productId', id)}`}
+                    >
+                      <CreateOutlinedIcon />
+                    </IconButton>
+                    <IconButton color="black" component={Link} to={SCREEN_URL.ADMIN_DETAIL_USER.replace(':userId', id)}>
+                      <ArrowForwardRoundedIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
-              )
-            )}
+              ))}
           </TableBody>
         </Table>
       </Box>
       <TablePagination
         component="div"
-        count={0}
-        page={0}
-        rowsPerPage={0}
+        count={products?.length}
+        page={currentPage}
+        rowsPerPage={itemsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
-        onPageChange={() => {}}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <ModalRemove
+        open={open}
+        selectedItems={selectedItems}
+        handleClose={handleClose}
+        handleRemove={handleRemoveProduct}
       />
     </Card>
   );

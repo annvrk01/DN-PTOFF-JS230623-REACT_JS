@@ -1,6 +1,7 @@
 // sass .\src\site-customer\pages\style.scss .\src\site-customer\pages\style.css --watch
 
 @import '../../scss/bases/base';
+@import '../../scss/components/slider';
 
 .home {
   @include dFlex($align: start);

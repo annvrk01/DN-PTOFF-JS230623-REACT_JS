@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosClient from './axiosClient';
 
-export const getUsers = createAsyncThunk('user/getUsers', async (_, thunkAPI) => {
+export const fetchUsers = createAsyncThunk('user/fetchUsers', async (_, thunkAPI) => {
   const res = await axiosClient.get('/users', {
     signal: thunkAPI.signal,
   });
@@ -9,7 +9,7 @@ export const getUsers = createAsyncThunk('user/getUsers', async (_, thunkAPI) =>
   return res.data;
 });
 
-export const getUser = createAsyncThunk('user/getUser', async (userId, thunkAPI) => {
+export const fetchUser = createAsyncThunk('user/fetchUser', async (userId, thunkAPI) => {
   const res = await axiosClient.get(`/users/${userId}`, {
     signal: thunkAPI.signal,
   });

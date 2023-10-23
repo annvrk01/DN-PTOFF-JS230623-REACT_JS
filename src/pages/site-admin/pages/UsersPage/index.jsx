@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { screenUrl } from '../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../constants/screen';
 import { UsersTable } from './UsersTable';
 import {
   Box,
@@ -23,21 +23,23 @@ import Loading from '../../../../components/Loading';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 import * as XLSX from 'xlsx';
-import { getUsers } from '../../../../api/userApi';
+import { fetchUsers } from '../../../../api/userApi';
+import moment from 'moment';
 
 UsersPage.propTypes = {};
 
 function UsersPage() {
   const users = useSelector((state) => state.users);
   const dispatch = useDispatch();
-  // const [filters, setFilters] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState([]);
   const [select, setSelect] = useState({
     order: '',
     spent: '',
   });
 
   useEffect(() => {
-    dispatch(getUsers());
+    dispatch(fetchUsers());
   }, []);
 
   const handleExportFile = () => {
@@ -56,13 +58,41 @@ function UsersPage() {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const parsedData = XLSX.utils.sheet_to_json(sheet);
+      console.log(parsedData);
       return parsedData;
     };
   };
 
-  const handleFilters = useMemo(() => {
-    // const filters = users.filter(user => )
-  }, []);
+  const handleSearchUser = (e) => setSearch(e.target.value);
+  const handleFilterProductBySelect = (e) => setFilters(e.target.value);
+
+  const sortUsers = (users, sortBy) =>
+    [...users].sort((a, b) => {
+      if (sortBy === 'sortProduct|desc') {
+        return a.fullName.localeCompare(b.fullName);
+      } else if (sortBy === 'sortProduct|asc') {
+        return b.fullName.localeCompare(a.fullName);
+      } else if (sortBy === 'updatedAt|desc') {
+        return moment(b.updatedAt).diff(moment(a.updatedAt));
+      } else if (sortBy === 'updatedAt|asc') {
+        return moment(a.updatedAt).diff(moment(b.updatedAt));
+      }
+    });
+
+  const usersFilter = useMemo(() => {
+    let filteredUsers = users.data.filter(
+      (user) =>
+        search === '' ||
+        user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (filters) {
+      filteredUsers = sortUsers(filteredUsers, filters);
+    }
+
+    return filteredUsers;
+  }, [search, filters, users]);
 
   return (
     <div>
@@ -78,7 +108,7 @@ function UsersPage() {
         >
           <Container maxWidth="xl">
             <Stack spacing={3}>
-              <Stack direction="row" justifyContent="space-between" spacing={4}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={4}>
                 <Stack spacing={1}>
                   <Typography variant="h4">Quản lý Người dùng</Typography>
                   <Stack alignItems="center" direction="row" spacing={1}>
@@ -109,26 +139,25 @@ function UsersPage() {
                     </Button>
                   </Stack>
                 </Stack>
-                <div>
-                  <Button
-                    component={Link}
-                    to={screenUrl.ADMIN_CREATE_USER}
-                    startIcon={
-                      <SvgIcon fontSize="small">
-                        <AddIcon />
-                      </SvgIcon>
-                    }
-                    variant="contained"
-                  >
-                    Thêm
-                  </Button>
-                </div>
+                <Button
+                  component={Link}
+                  to={SCREEN_URL.ADMIN_CREATE_USER}
+                  startIcon={
+                    <SvgIcon fontSize="small">
+                      <AddIcon />
+                    </SvgIcon>
+                  }
+                  variant="contained"
+                >
+                  Thêm
+                </Button>
               </Stack>
               <Card sx={{ borderRadius: 5 }} component={Paper} elevation={3}>
                 <Stack sx={{ p: 2 }} direction="row" justifyContent="space-between">
                   <OutlinedInput
                     fullWidth
                     placeholder="Search customer"
+                    onChange={handleSearchUser}
                     startAdornment={
                       <InputAdornment position="start">
                         <SvgIcon color="action" fontSize="small">
@@ -150,14 +179,15 @@ function UsersPage() {
                     select
                     label="Select"
                     defaultValue="updatedAt|desc"
+                    onChange={handleFilterProductBySelect}
                   >
-                    <MenuItem value="updatedAt|desc">Last update (newest)</MenuItem>
-                    <MenuItem value="updatedAt|asc">Last update (oldest)</MenuItem>
-                    <MenuItem value="totalOrders|desc">Total orders (highest)</MenuItem>
-                    <MenuItem value="totalOrders|asc">Total orders (lowest)</MenuItem>
+                    <MenuItem value="sortProduct|desc">Sắp xếp theo tăng dần (A-Z)</MenuItem>
+                    <MenuItem value="sortProduct|asc">Sắp xếp theo giảm dần (Z-A)</MenuItem>
+                    <MenuItem value="updatedAt|desc">Cập nhật lần cuối (Mới nhất)</MenuItem>
+                    <MenuItem value="updatedAt|asc">Cập nhật lần cuối (Cũ nhất)</MenuItem>
                   </TextField>
                 </Stack>
-                <UsersTable />
+                <UsersTable users={usersFilter} />
               </Card>
             </Stack>
           </Container>

@@ -8,6 +8,7 @@
   &--heading {
     @include heading4;
 
+    margin-top: 32px;
     font-weight: 500;
     padding-bottom: 20px;
     position: relative;
@@ -19,7 +20,7 @@
   }
 
   &__table {
-    width: calc(100% - 310px);
+    width: calc(100% - 340px);
   }
 
   &__table-head {
@@ -54,7 +55,7 @@
   &__table-row {
     padding: 9px 16px;
     display: grid;
-    grid-template-columns: 350px 170px 100px 130px 30px;
+    grid-template-columns: 400px 170px 100px 170px 30px;
     align-items: center;
     gap: 30px;
     background-color: $white;
@@ -63,6 +64,10 @@
 
   &__table-col {
     @include dFlex(start);
+  }
+
+  &__table-label {
+    @include dFlex($gap: 8px);
   }
 
   &__table-icon-home {
@@ -153,7 +158,7 @@
   }
 
   &__checkout {
-    width: 310px;
+    width: 340px;
     flex: 1;
   }
 
@@ -221,62 +226,6 @@
 
     &:hover {
       opacity: 0.9;
-    }
-  }
-
-  &__dialog {
-    @include position(fixed, 0, 0, 0, 0, 999999);
-    @include dFlex(center);
-
-    background-color: rgba($black, 0.6);
-    display: none;
-
-    &.show {
-      display: block;
-    }
-  }
-
-  &__dialog-container {
-    padding: 16px;
-    background-color: $white;
-    border-radius: 8px;
-  }
-
-  &__dialog-content {
-    @include dFlex(start, start, 12px);
-  }
-
-  &__dialog-content-title {
-    @include heading5;
-
-    padding-bottom: 8px;
-  }
-
-  &__dialog-control {
-    @include dFlex(end, $gap: 8px);
-
-    margin-top: 24px;
-  }
-
-  &__dialog-control-btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    height: 36px;
-    cursor: pointer;
-    font-weight: 500;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &--outline {
-      color: $blueMedium;
-      border: 1px solid $blueMedium;
-    }
-
-    &--primary {
-      color: $white;
-      background-color: $blueMedium;
     }
   }
 }

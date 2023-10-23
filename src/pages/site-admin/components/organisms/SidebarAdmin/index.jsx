@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { screenUrl } from '../../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../../constants/screen';
 import { Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import LogoTiki from '../../../../../assets/images/logo-tiki.png';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
@@ -17,34 +17,34 @@ const menuItems = [
     icon: <SignalCellularAltIcon color="white" />,
     iconActive: <SignalCellularAltIcon color="primary" />,
     title: 'Tổng quan',
-    url: screenUrl.ADMIN_HOME,
+    url: SCREEN_URL.ADMIN_HOME,
   },
   {
     icon: <GroupIcon color="white" />,
     iconActive: <GroupIcon color="primary" />,
     title: 'Người dùng',
-    url: screenUrl.ADMIN_USERS,
+    url: SCREEN_URL.ADMIN_USERS,
     name: 'user',
   },
   {
     icon: <LocalMallIcon color="white" />,
     iconActive: <LocalMallIcon color="primary" />,
     title: 'Sản phẩm',
-    url: screenUrl.ADMIN_PRODUCT,
+    url: SCREEN_URL.ADMIN_PRODUCT,
     name: 'product',
   },
   {
     icon: <PersonIcon color="white" />,
     iconActive: <PersonIcon color="primary" />,
     title: 'Tài khoản',
-    url: screenUrl.ADMIN_ACCOUNT,
+    url: SCREEN_URL.ADMIN_ACCOUNT,
     name: 'account',
   },
   {
     icon: <SettingsIcon color="white" />,
     iconActive: <SettingsIcon color="primary" />,
     title: 'Cài đặt',
-    url: screenUrl.ADMIN_SETTINGS,
+    url: SCREEN_URL.ADMIN_SETTINGS,
     name: 'setting',
   },
 ];
@@ -53,7 +53,7 @@ function SidebarAdmin() {
   const location = useLocation();
 
   const activeIndex = menuItems.findIndex((menuItem) => {
-    if (menuItem.url === screenUrl.ADMIN_HOME) {
+    if (menuItem.url === SCREEN_URL.ADMIN_HOME) {
       return location.pathname === menuItem.url;
     } else {
       return location.pathname.includes(menuItem.name);

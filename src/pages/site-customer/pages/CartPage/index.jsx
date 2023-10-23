@@ -1,43 +1,263 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { formatPriceToVnd } from '../../../../utils/formatPrice';
+import ModalRemove from '../../components/molecules/ModalRemove';
+import ModalWarning from '../../components/molecules/ModalWarning';
+import { updateCart } from '../../../../api/cartApi';
+import { addProductOrder } from '../../../../redux/slice/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { SCREEN_URL } from '../../../../constants/screen';
 
 import './style.scss';
-
-CartPage.propTypes = {};
-
 function CartPage(props) {
+  const { data } = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [openRemove, setOpenRemove] = useState(false);
+  const [openWarning, setOpenWarning] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  const handleOpenRemove = () => setOpenRemove(true);
+  const handleCloseRemove = () => setOpenRemove(false);
+  const handleOpenWarning = () => setOpenWarning(true);
+  const handleCloseWarning = () => setOpenWarning(false);
+  const handleClearSelected = () => {
+    setSelectAll(false);
+    setSelectedItems([]);
+  };
+
+  const handleClickRemove = () => {
+    if (!selectedItems.length) return handleOpenWarning();
+    handleOpenRemove();
+  };
+
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    const allProductIds = data?.products?.map((products) => products.id);
+
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(allProductIds);
+    }
+  };
+
+  const handleSelectItem = (itemId) => {
+    setSelectAll(false);
+    const index = selectedItems.indexOf(itemId);
+    if (index === -1) {
+      setSelectedItems([...selectedItems, itemId]);
+    } else {
+      const updatedItems = [...selectedItems];
+      updatedItems.splice(index, 1);
+      setSelectedItems(updatedItems);
+    }
+  };
+
+  const handleRemoveOrder = () => {
+    const newProducts = [...data.products];
+
+    selectedItems.forEach((productId) => {
+      const index = newProducts.findIndex((product) => product.id === productId);
+      newProducts.splice(index, 1);
+    });
+
+    dispatch(updateCart({ ...data, products: newProducts }));
+    handleCloseRemove();
+    handleClearSelected();
+  };
+
+  const handleIncrementQuantity = async (productId) => {
+    const newProducts = [...data.products];
+    const index = newProducts.findIndex((product) => product.id === productId);
+    const updatedProduct = { ...newProducts[index] };
+
+    updatedProduct.quantity += 1;
+    if (updatedProduct.quantity >= newProducts[index].limitProduct) updatedProduct.quantity = 1;
+
+    newProducts[index] = updatedProduct;
+    dispatch(updateCart({ ...data, products: newProducts }));
+  };
+
+  const handleDecrementQuantity = (productId) => {
+    const newProducts = [...data.products];
+    const index = newProducts.findIndex((product) => product.id === productId);
+    const updatedProduct = { ...newProducts[index] };
+
+    updatedProduct.quantity -= 1;
+    if (updatedProduct.quantity >= newProducts[index].limitProduct || updatedProduct.quantity <= 0) {
+      updatedProduct.quantity = 1;
+      handleSelectItem(productId);
+      handleOpenRemove();
+    }
+
+    newProducts[index] = updatedProduct;
+    dispatch(updateCart({ ...data, products: newProducts }));
+  };
+
+  const handleChangeQuantity = (e, productId) => {
+    const value = e.target.value;
+    const newProducts = [...data.products];
+    const index = newProducts.findIndex((product) => product.id === productId);
+    const updatedProduct = { ...newProducts[index] };
+
+    updatedProduct.quantity = value;
+    if (updatedProduct.quantity <= 0) updatedProduct.quantity = 1;
+
+    newProducts[index] = updatedProduct;
+    dispatch(updateCart({ ...data, products: newProducts }));
+  };
+
+  const totalPrice = useMemo(
+    () =>
+      data?.products
+        ?.filter((product) => selectedItems.includes(product.id))
+        .reduce(
+          (total, { priceNew, priceOdd, quantity }) =>
+            total + (priceNew === priceOdd ? priceOdd * quantity : priceNew * quantity),
+          0
+        ),
+    [data, selectedItems]
+  );
+
+  const handleCheckout = async () => {
+    if (!selectedItems.length) return handleOpenWarning();
+
+    const productsCheckout = data?.products?.filter((product) => selectedItems.includes(product.id));
+    dispatch(addProductOrder(productsCheckout));
+    navigate(SCREEN_URL.CHECKOUT);
+  };
+
   return (
     <>
       <main id="main" className="main">
-        <div className="cart container md">
+        <div className="cart container">
           <h3 className="cart--heading">GIỎ HÀNG</h3>
           <div className="cart__container">
             <div className="cart__table">
               <div className="cart__table-head">
                 <div className="cart__table-row">
                   <div className="cart__table-col">
-                    <input type="checkbox" id="table-checkbox-1" className="cart__table-checkbox cart__checkbox-all" />
-                    <label for="table-checkbox-1" className="cart__table-lable cart__select-all-product">
-                      Tất cả (2 sản phẩm)
+                    <input
+                      type="checkbox"
+                      id="table-checkbox-1"
+                      className="cart__table-checkbox cart__checkbox-all"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                    />
+                    <label htmlFor="table-checkbox-1" className="cart__table-label cart__select-all-product">
+                      Tất cả ({data?.products?.length} sản phẩm)
                     </label>
                   </div>
                   <div className="cart__table-col" style={{ margin: '0 15px' }}>
-                    <span className="cart__table-lable">Đơn giá</span>
+                    <span className="cart__table-label">Đơn giá</span>
                   </div>
                   <div className="cart__table-col">
-                    <span className="cart__table-lable">Số lượng</span>
+                    <span className="cart__table-label">Số lượng</span>
                   </div>
                   <div className="cart__table-col">
-                    <span className="cart__table-lable">Thành tiền</span>
+                    <span className="cart__table-label">Thành tiền</span>
                   </div>
                   <div className="cart__table-col">
-                    <button className="cart__table-btn-remove cart__table-btn-remove-all" title="Xoá mục đã chọn">
+                    <button
+                      className="cart__table-btn-remove cart__table-btn-remove-all"
+                      title="Xoá mục đã chọn"
+                      onClick={handleClickRemove}
+                    >
                       <img src="https://frontend.tikicdn.com/_desktop-next/static/img/icons/trash.svg" alt="" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className="cart__table-body"></div>
+              <div className="cart__table-body">
+                {data?.products?.map(
+                  ({ id, productName, thumbnailUrl, priceNew, priceOdd, quantity, shopName }, index) => (
+                    <div key={id} className="cart__table-group">
+                      <div className="cart__table-row">
+                        <div className="cart__table-col">
+                          <label htmlFor="table-checkbox-${id + 99}" className="cart__table-label">
+                            <img
+                              src="https://salt.tikicdn.com/ts/upload/30/24/79/8317b36e87e7c0920e33de0ab5c21b62.png"
+                              alt="Icon home"
+                              className="cart__table-icon-home"
+                            />
+                            <span className="cart__table-seller">{shopName}</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="cart__table-row">
+                        <div className="cart__table-col">
+                          <input
+                            type="checkbox"
+                            id="table-checkbox-${id + 99}"
+                            className="cart__table-checkbox cart__checkbox-item"
+                            checked={selectedItems.includes(id)}
+                            onChange={() => handleSelectItem(id)}
+                          />
+                          <a href="/details" className="cart__table-product">
+                            <img src={thumbnailUrl} alt={productName} className="cart__table-product-image" />
+                            <span className="cart__table-product-name">{productName}</span>
+                          </a>
+                        </div>
+                        <div className="cart__table-col cart__table-price">
+                          {priceNew === priceOdd ? (
+                            <span className="price-current">${formatPriceToVnd(priceNew)}</span>
+                          ) : (
+                            <>
+                              <span className="price-current">${formatPriceToVnd(priceNew)}</span>
+                              <span className="price-discount">${formatPriceToVnd(priceOdd)}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="cart__table-col cart__table-quantity">
+                          <button
+                            className="cart__table-quantity-btn cart__table-quantity-btn-minus"
+                            onClick={() => handleDecrementQuantity(id)}
+                          >
+                            <img
+                              src="https://frontend.tikicdn.com/_desktop-next/static/img/icons/decrease.svg"
+                              alt=""
+                            />
+                          </button>
+                          <input
+                            type="number"
+                            className="cart__table-quantity-input"
+                            value={quantity}
+                            onChange={(e) => handleChangeQuantity(e, id)}
+                          />
+                          <button
+                            className="cart__table-quantity-btn cart__table-quantity-btn-plus"
+                            onClick={() => handleIncrementQuantity(id)}
+                          >
+                            <img
+                              src="https://frontend.tikicdn.com/_desktop-next/static/img/icons/increase.svg"
+                              alt=""
+                            />
+                          </button>
+                        </div>
+                        <div className="cart__table-col cart__table-money">
+                          <span>
+                            {priceNew === priceOdd
+                              ? formatPriceToVnd(priceOdd * quantity)
+                              : formatPriceToVnd(priceNew * quantity)}
+                          </span>
+                        </div>
+                        <div className="cart__table-col">
+                          <button
+                            className="cart__table-btn-remove cart__table-btn-remove-one"
+                            onClick={handleClickRemove}
+                          >
+                            <img src="https://frontend.tikicdn.com/_desktop-next/static/img/icons/trash.svg" alt="" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
             <div className="cart__checkout">
               <div className="cart__checkout-coupon">
@@ -56,7 +276,6 @@ function CartPage(props) {
                       fill="none"
                       className="info-icon"
                       background="#ffffff"
-                      ariaDescribedby="popup-1"
                     >
                       <path
                         d="M12.75 11.25C12.75 10.8358 12.4142 10.5 12 10.5C11.5858 10.5 11.25 10.8358 11.25 11.25V15.75C11.25 16.1642 11.5858 16.5 12 16.5C12.4142 16.5 12.75 16.1642 12.75 15.75V11.25Z"
@@ -109,60 +328,31 @@ function CartPage(props) {
               <div className="cart__checkout-body">
                 <div className="cart__checkout-price">
                   <div className="cart__checkout-price-top">
-                    <p className="cart__checkout-price--lable">Tạm tính</p>
-                    <p className="cart__checkout-price-price"></p>
+                    <p className="cart__checkout-price--label">Tạm tính</p>
+                    <p className="cart__checkout-price-price">{formatPriceToVnd(totalPrice)}</p>
                   </div>
                   <div className="cart__checkout-price-body">
-                    <p className="cart__checkout-price--lable">Tổng tiền</p>
-                    <p className="cart__checkout-price--final"></p>
+                    <p className="cart__checkout-price--label">Tổng tiền</p>
+                    <p className="cart__checkout-price--final">
+                      {totalPrice === 0 ? (
+                        <span style={{ fontSize: 14 }}>Vui lòng chọn sản phẩm</span>
+                      ) : (
+                        formatPriceToVnd(totalPrice)
+                      )}
+                    </p>
                   </div>
                 </div>
-                <button className="cart__checkout-price-btn">Mua Hàng (0)</button>
+                <button className="cart__checkout-price-btn" onClick={handleCheckout}>
+                  Mua Hàng ({selectedItems.length})
+                </button>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      <div className="cart__dialog">
-        <div className="cart__dialog-container">
-          <div className="cart__dialog-content">
-            <svg
-              width="24"
-              height="24"
-              className="dialog-content__icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M12 8.25C12.4142 8.25 12.75 8.58579 12.75 9V13.5C12.75 13.9142 12.4142 14.25 12 14.25C11.5858 14.25 11.25 13.9142 11.25 13.5V9C11.25 8.58579 11.5858 8.25 12 8.25Z"
-                fill="#FC820A"
-              ></path>
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M10.0052 4.45201C10.8464 2.83971 13.1536 2.83971 13.9948 4.45201L20.5203 16.9592C21.3019 18.4572 20.2151 20.25 18.5255 20.25H5.47447C3.78487 20.25 2.69811 18.4572 3.47966 16.9592L10.0052 4.45201ZM12.6649 5.14586C12.3845 4.60842 11.6154 4.60842 11.335 5.14586L4.80953 17.6531C4.54902 18.1524 4.91127 18.75 5.47447 18.75H18.5255C19.0887 18.75 19.4509 18.1524 19.1904 17.6531L12.6649 5.14586Z"
-                fill="#FC820A"
-              ></path>
-              <path
-                d="M12 17.25C12.6213 17.25 13.125 16.7463 13.125 16.125C13.125 15.5037 12.6213 15 12 15C11.3787 15 10.875 15.5037 10.875 16.125C10.875 16.7463 11.3787 17.25 12 17.25Z"
-                fill="#FC820A"
-              ></path>
-            </svg>
-            <div className="cart__dialog-content-text">
-              <h5 className="cart__dialog-content-title">Xoá sản phẩm</h5>
-              <p className="cart__dialog-content-message">Bạn có muốn xóa sản phẩm đang chọn?</p>
-            </div>
-          </div>
-          <div className="cart__dialog-control">
-            <button className="cart__dialog-control-btn cart__dialog-control-btn--outline">Xác nhận</button>
-            <button className="cart__dialog-control-btn cart__dialog-control-btn--primary">Huỷ</button>
-          </div>
-        </div>
-      </div>
+      <ModalRemove open={openRemove} handleRemove={handleRemoveOrder} handleClose={handleCloseRemove} />
+      <ModalWarning open={openWarning} content="Bạn chưa chọn sản phẩm nào" handleClose={handleCloseWarning} />
     </>
   );
 }

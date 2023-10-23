@@ -1,27 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SCREEN_URL } from '../../../../../../constants/screen';
 
 function CardItem(props) {
   const { product } = props;
   const {
     id,
-    delivery_day,
-    discount_product,
-    image_url,
-    name_product,
-    price_discount,
-    price_product,
+    deliveryDay,
+    discountProduct,
+    thumbnailUrl,
+    productName,
+    priceNew,
+    priceOdd,
     rating,
-    sold_product,
+    soldProduct,
+    urlPath,
   } = product;
 
   return (
-    <Link to="/details" className="card__item" data-id={id}>
+    <Link
+      to={SCREEN_URL.DETAILS.replace(':urlPath', urlPath).replace(':productId', id)}
+      className="card__item"
+      data-id={id}
+    >
       <div className="card__item-thumbnail">
-        <img src={image_url} alt={name_product} />
+        <img src={thumbnailUrl} alt={productName} />
       </div>
       <div className="card__item-content">
-        <p className="card__item-title">{name_product}</p>
+        <p className="card__item-title">{productName}</p>
         <div className="card__item-rating-count">
           <div className="card__item-rating">
             <span>{rating}</span>
@@ -40,18 +46,18 @@ function CardItem(props) {
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
             </svg>
           </div>
-          <div className="card__item-count">Đã bán {sold_product}</div>
+          <div className="card__item-count">Đã bán {soldProduct}</div>
         </div>
-        <p className={`card__item-price ${discount_product ? 'discount' : ''}`}>
-          {(discount_product ? price_product : price_discount).toLocaleString('vi', {
+        <p className={`card__item-price ${discountProduct ? 'discount' : ''}`}>
+          {(discountProduct ? priceNew : priceOdd).toLocaleString('vi', {
             style: 'currency',
             currency: 'VND',
           })}
-          {discount_product ? <span className="card__item-price--discount">{discount_product * 100}%</span> : ''}
+          {discountProduct ? <span className="card__item-price--discount">{discountProduct}%</span> : ''}
         </p>
       </div>
       <div className="card__item-footer">
-        <p>{delivery_day}</p>
+        <p>{deliveryDay}</p>
       </div>
     </Link>
   );

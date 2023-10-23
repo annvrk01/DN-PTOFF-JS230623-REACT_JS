@@ -5,9 +5,13 @@ import { authentication } from '.';
 const fbAuthProvider = new FacebookAuthProvider();
 const ggAuthProvider = new GoogleAuthProvider();
 
-const getUserData = async (authProvider) => {
+/**
+ * Xác thực người dùng và lấy thông tin người dùng từ Firebase sử dụng authProvider.
+ * @param {FirebaseAuthProvider} authProvider - Cung cấp xác thực (FacebookAuthProvider hoặc GoogleAuthProvider).
+ * @returns {Object} - Trả về một đối tượng chứa thông tin người dùng sau khi xác thực.
+ */
+const fetchUserData = async (authProvider) => {
   const res = await signInWithPopup(authentication, authProvider);
-
   const {
     uid,
     accessToken,
@@ -16,7 +20,6 @@ const getUserData = async (authProvider) => {
     photoURL,
     metadata: { createdAt },
   } = res.user;
-
   const dateFormat = moment(Number(createdAt)).format('YYYY-MM-DDTHH:mm:ssZ');
 
   return {
@@ -30,9 +33,9 @@ const getUserData = async (authProvider) => {
 };
 
 export const FacebookAuth = async () => {
-  return await getUserData(fbAuthProvider);
+  return await fetchUserData(fbAuthProvider);
 };
 
 export const GoogleAuth = async () => {
-  return await getUserData(ggAuthProvider);
+  return await fetchUserData(ggAuthProvider);
 };

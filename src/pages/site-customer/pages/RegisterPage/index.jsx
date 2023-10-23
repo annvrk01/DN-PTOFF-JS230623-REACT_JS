@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import BackgroundForm from '../../../../assets/images/bg-form-1.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { imageUrl } from '../../../../constants/images';
+import { IMAGE_URL } from '../../../../constants/images';
 import { useDispatch } from 'react-redux';
-import { addUser, getUsers } from '../../../../api/userApi';
+import { addUser, fetchUsers } from '../../../../api/userApi';
 import googleIcon from '../../../../assets/images/google-icon.png';
 import facebookIcon from '../../../../assets/images/facebook-icon.png';
 import md5 from 'md5';
@@ -29,9 +29,9 @@ function RegisterPage() {
     phone: '',
     dayOfBirth: '2023-01-01',
     gender: 'female',
-    order: 0,
+    orders: [],
     spent: 0,
-    avatar: imageUrl.AVATAR_DEFAULT,
+    avatar: IMAGE_URL.AVATAR_DEFAULT,
     isPublic: true,
     createdAt: moment().format(),
     token: '',
@@ -70,7 +70,7 @@ function RegisterPage() {
 
     const hasErrors = Object.values(newErrors).some((error) => error !== '');
 
-    const users = await dispatch(getUsers());
+    const users = await dispatch(fetchUsers());
     const userExists = users.payload.some(({ email }) => email === user.email);
 
     if (!hasErrors) {
@@ -94,13 +94,11 @@ function RegisterPage() {
   const handleLogin = async (authProvider) => {
     try {
       const data = await authProvider();
-      const users = await dispatch(getUsers());
+      const users = await dispatch(fetchUsers());
       const userExists = users.payload.some((user) => user.id === data.id);
-
       if (!userExists) await dispatch(addUser({ ...user, ...data, password: '' }));
-
-      const { token, fullName, email, avatar } = data;
-      await dispatch(addUserCurrent({ token, dataUser: { fullName, email, avatar } }));
+      const { id, token, fullName, email, avatar } = data;
+      await dispatch(addUserCurrent({ token, dataUser: { id, fullName, email, avatar } }));
       navigate('/');
     } catch (error) {
       console.log(error);

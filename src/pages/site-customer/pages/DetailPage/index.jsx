@@ -1,47 +1,180 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import CardList from '../../components/molecules/CardList';
 import './styles.scss';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProduct } from '../../../../api/productApi';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { v4 as uuidv4 } from 'uuid';
+
+import 'swiper/css';
+import 'swiper/css/free-mode';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+
+import { Navigation, Mousewheel, Keyboard, Thumbs, FreeMode } from 'swiper/modules';
+import { formatPriceToK, formatPriceToVnd } from '../../../../utils/formatPrice';
+import { addCart, fetchProductCartByUserId, updateCart } from '../../../../api/cartApi';
 
 DetailPage.propTypes = {};
 
 function DetailPage() {
+  const { productId } = useParams();
+  const { userCurrent } = useSelector((state) => state.users);
+  const { productDetail } = useSelector((state) => state.products);
+  const dispatch = useDispatch();
+
+  const {
+    id,
+    productName,
+    urlPath,
+    priceNew,
+    priceOdd,
+    discountProduct,
+    deliveryDay,
+    deliveryPrice,
+    limitProduct,
+    rating,
+    reviewCount,
+    thumbnailUrl,
+    imageList,
+    soldProduct,
+    description,
+    categoryId,
+    categoryName,
+    shopName,
+    breadcrumbs,
+    specifications,
+  } = productDetail;
+
+  const [imageItem, setImageItem] = useState(0);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const handleIncrementQuantity = () => {
+    setQuantity(Number(quantity) + 1);
+    if (quantity >= limitProduct) setQuantity(1);
+  };
+
+  const handleDecrementQuantity = () => {
+    setQuantity(Number(quantity) - 1);
+    if (quantity >= limitProduct || quantity <= 0) setQuantity(1);
+  };
+
+  const handleChangeQuantity = (e) => {
+    setQuantity(e.target.value);
+    if (quantity <= 0) setQuantity(1);
+  };
+
+  const handleAddToCart = async () => {
+    const res = await dispatch(fetchProductCartByUserId(userCurrent.id));
+    const product = { id, urlPath, productName, thumbnailUrl, priceNew, priceOdd, quantity, limitProduct, shopName };
+
+    if (res.payload) {
+      const products = [...res.payload.products];
+      const orderId = res?.payload?.id;
+      const userId = userCurrent?.id;
+      const productId = id;
+
+      const productIndexExisted = products.findIndex((product) => product.id === productId);
+
+      if (productIndexExisted !== -1) {
+        const updatedProduct = { ...products[productIndexExisted] };
+        updatedProduct.quantity += quantity;
+        products[productIndexExisted] = updatedProduct;
+
+        dispatch(updateCart({ id: orderId, userId, products }));
+      } else {
+        products.push(product);
+        dispatch(updateCart({ id: orderId, userId, products }));
+      }
+    } else {
+      dispatch(
+        addCart({
+          id: uuidv4(),
+          userId: userCurrent?.id,
+          products: [product],
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    dispatch(fetchProduct(productId));
+  }, []);
+
   return (
     <>
       <main id="main" className="main">
-        <div className="container md product">
+        <div className="container product">
           <ul className="product__breadcrumb">
             <li className="product__breadcrumb-item">
               <a href="#!" className="product__breadcrumb-link">
                 Trang chủ
               </a>
             </li>
-            <li className="product__breadcrumb-item">
-              <a href="#!" className="product__breadcrumb-link">
-                Thiết Bị Số - Phụ Kiện Số
-              </a>
-            </li>
-            <li className="product__breadcrumb-item">
-              <a href="#!" className="product__breadcrumb-link">
-                Thiết Bị Âm Thanh và Phụ Kiện
-              </a>
-            </li>
-            <li className="product__breadcrumb-item">
-              <a href="#!" className="product__breadcrumb-link">
-                Tai Nghe True Wireless
-              </a>
-            </li>
-            <li className="product__breadcrumb-item product__breadcrumb-current">
-              Tai Nghe Nhét Tai Bluetooth TWS V5.0 - Cảm Ứng 2 Bên , Có Mic - Hỗ Trợ Định Vị - Sạc Không Dây
-            </li>
+            {breadcrumbs?.map(({ url, name, categoryId }, index) => (
+              <li key={url} className="product__breadcrumb-item">
+                {index === breadcrumbs.length - 1 ? (
+                  <span>{productName}</span>
+                ) : (
+                  <a href="#!" className="product__breadcrumb-link">
+                    {name}
+                  </a>
+                )}
+              </li>
+            ))}
           </ul>
 
           <div className="product__info">
-            <div className="product__info-image">
-              <div className="product__info-image-main image-gallery__btn-open">
-                <img src="" alt="" />
-              </div>
-              <div className="product__info-image-list"></div>
+            <div className="product__info-image product__info--bg-white">
+              <Swiper
+                style={{
+                  '--swiper-navigation-color': '#fff',
+                  '--swiper-pagination-color': '#fff',
+                }}
+                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                modules={[Navigation, Mousewheel, Keyboard, FreeMode, Thumbs]}
+                className="product__info-image-main image-gallery__btn-open"
+              >
+                {imageList?.map((url, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      key={index}
+                      src={url}
+                      alt={productName + index}
+                      className={`product__info-image-item ${index === imageItem ? 'active' : ''}`}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <Swiper
+                style={{
+                  '--swiper-navigation-color': '#fff',
+                  '--swiper-pagination-color': '#fff',
+                }}
+                onSwiper={setThumbsSwiper}
+                freeMode={true}
+                watchSlidesProgress={true}
+                modules={[Navigation, Mousewheel, Keyboard, FreeMode, Thumbs]}
+                slidesPerView={5}
+                className="product__info-image-list"
+              >
+                {imageList?.map((url, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      key={index}
+                      src={url}
+                      alt={productName + index}
+                      className={`product__info-image-item ${index === imageItem ? 'active' : ''}`}
+                      onClick={() => {
+                        setImageItem(index);
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
               <div className="product__info-social">
                 <p>Chia sẻ:</p>
                 <a href="#!" className="product__info-social-link">
@@ -82,61 +215,148 @@ function DetailPage() {
               </div>
             </div>
             <div className="product__info-content">
-              <h2 className="product__info--heading"></h2>
-              <div className="product__info-rating">
-                <div className="product__info-star"></div>
-                <a href="#product-comment" className="product__info-watch-comment">
-                  (Xem 4 đánh giá){' '}
-                </a>
-                <p className="product__info-sold"></p>
-              </div>
               <div className="product__info-body">
                 <div className="product__info-body-left">
-                  <h4 className="product__info-price discount"></h4>
-                  <p className="product__info-price--discount"></p>
+                  <div className="product__info--bg-white">
+                    <h2 className="product__info--heading">{productName}</h2>
+                    <div className="product__info-rating">
+                      <div className="product__info-star">
+                        {Array.from({ length: rating }, (_, index) => (
+                          <span key={index} className="product__info-star-icon">
+                            <svg
+                              stroke="currentColor"
+                              fill="currentColor"
+                              strokeWidth="0"
+                              viewBox="0 0 24 24"
+                              size="16"
+                              color="#fdd836"
+                              style={{ color: '#fdd836' }}
+                              height="16"
+                              width="16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                            </svg>
+                          </span>
+                        ))}
+                      </div>
+                      <a href="#product-comment" className="product__info-watch-comment">
+                        (Xem {reviewCount} đánh giá)
+                      </a>
+                      <p className="product__info-sold">Đã bán {soldProduct > 1000 ? '1000+' : soldProduct}</p>
+                    </div>
+                    <div className="product__info-price-main">
+                      <h4 className={`product__info-price ${discountProduct > 0 ? 'discount' : ''}`}>
+                        {discountProduct > 0 ? formatPriceToVnd(priceNew) : formatPriceToVnd(priceOdd)}
+                      </h4>
+                      {discountProduct > 0 ? (
+                        <p className="product__info-price--discount">{formatPriceToVnd(priceOdd)}</p>
+                      ) : (
+                        ''
+                      )}
+                    </div>
+                    <div className="product__info-coupon">
+                      <h4 className="product__info-coupon--title">1 Mã Giảm Giá</h4>
+                      <div className="product__info-coupon-tags">
+                        <div className="product__info-coupon-tag">Giảm {formatPriceToK(10000)}</div>
+                        <img
+                          className="product__info-coupon-icon"
+                          src="https://salt.tikicdn.com/ts/upload/63/43/b6/472934eece91531f0855b86a00a3b1a1.png"
+                          alt=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="product__info--bg-white">
+                    <div className="product__info-address">
+                      <span>Giao đến </span>
+                      <span className="product__info-address-change">
+                        <span className="underline">Q. Hải Châu, P. Hải Châu I, Đà Nẵng</span>
+                        <span> - </span>
+                        <span className="button-change">Đổi địa chỉ</span>
+                      </span>
+                    </div>
+                    <div className="product__info-delivery">
+                      <div className="product__info-delivery-icon">
+                        <img
+                          src="https://salt.tikicdn.com/ts/upload/7f/30/d9/93a6fcd39c0045e628fdd5e48e7d26e5.png"
+                          alt=""
+                        />
+                        <p className="product__info-delivery-time">{deliveryDay}</p>
+                      </div>
+                      <div className="product__info-delivery-price">
+                        Vận chuyển: <span>{formatPriceToVnd(deliveryPrice)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="product__info--bg-white">
+                    <div className="product__detail">
+                      <h3 className="product__detail--heading">Thông Tin Chi Tiết</h3>
+                      <table className="product__detail-table">
+                        <tbody>
+                          {specifications
+                            ? specifications[0] &&
+                              specifications[0].attributes.map(({ name, value }) => (
+                                <tr key={name} className="product__detail-table-row">
+                                  <td className="product__detail-item product__detail-label">{name}</td>
+                                  <td className="product__detail-item product__detail-value">{value}</td>
+                                </tr>
+                              ))
+                            : ''}
+                          {specifications
+                            ? specifications[1] &&
+                              specifications[1].attributes.map(({ name, value }) => (
+                                <tr key={name} className="product__detail-table-row">
+                                  <td className="product__detail-item product__detail-label">{name}</td>
+                                  <td className="product__detail-item product__detail-value">{value}</td>
+                                </tr>
+                              ))
+                            : ''}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div className="product__info--bg-white">
+                    <div className="product__description">
+                      <h3 className="product__description--heading">Mô tả sản phẩm</h3>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: description,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
-                <div className="product__info-body-right">
-                  <div className="product__info-coupon">
-                    <h4 className="product__info-coupon--title">1 Mã Giảm Giá</h4>
-                    <div className="product__info-coupon-tags">
-                      <div className="product__info-coupon-tag">Giảm 15K</div>
-                      <img
-                        className="product__info-coupon-icon"
-                        src="https://salt.tikicdn.com/ts/upload/63/43/b6/472934eece91531f0855b86a00a3b1a1.png"
-                        alt=""
-                      />
-                    </div>
-                  </div>
-                  <div className="product__info-address">
-                    <span>Giao đến </span>
-                    <span className="product__info-address-change">
-                      <span className="underline">Q. Hải Châu, P. Hải Châu I, Đà Nẵng</span>-
-                      <span className="button-change">Đổi địa chỉ</span>
-                    </span>
-                  </div>
-                  <div className="product__info-delivery">
-                    <div className="product__info-delivery-icon">
-                      <img
-                        src="https://salt.tikicdn.com/ts/upload/7f/30/d9/93a6fcd39c0045e628fdd5e48e7d26e5.png"
-                        alt=""
-                      />
-                      <p className="product__info-delivery-time"></p>
-                    </div>
-                    <div className="product__info-delivery-price">
-                      Vận chuyển: <span></span>
-                    </div>
-                  </div>
+                <div className="product__info-body-right product__info--bg-white">
                   <div className="product__info-quantity">
                     <span>Số Lượng</span>
                     <div className="product__info-quantity-control">
-                      <button className="product__info-quantity-btn product__info-quantity-btn--minus disable">
+                      <button
+                        className={`product__info-quantity-btn product__info-quantity-btn--minus ${
+                          quantity <= 1 ? 'disable' : ''
+                        }`}
+                        onClick={handleDecrementQuantity}
+                      >
                         <img
                           src="https://frontend.tikicdn.com/_desktop-next/static/img/pdp_revamp_v2/icons-remove.svg"
                           alt=""
                         />
                       </button>
-                      <input className="product__info-quantity-input" type="number" value="1" min="1" />
-                      <button className="product__info-quantity-btn product__info-quantity-btn--plus">
+                      <input
+                        className="product__info-quantity-input"
+                        type="number"
+                        value={quantity}
+                        onChange={handleChangeQuantity}
+                        onBlur={handleChangeQuantity}
+                        min="1"
+                        max={limitProduct}
+                      />
+                      <button
+                        className={`product__info-quantity-btn product__info-quantity-btn--plus ${
+                          quantity >= limitProduct ? 'disable' : ''
+                        }`}
+                        onClick={handleIncrementQuantity}
+                      >
                         <img
                           src="https://frontend.tikicdn.com/_desktop-next/static/img/pdp_revamp_v2/icons-add.svg"
                           alt=""
@@ -145,106 +365,27 @@ function DetailPage() {
                     </div>
                   </div>
                   <div className="product__info-btn">
-                    <button className="product__info-btn-buy">Chọn mua</button>
-                    <div className="btn product__info-btn-chat">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M0 8.25C0 3.95165 4.15905 0.75 9 0.75C13.8409 0.75 18 3.95165 18 8.25C18 10.0141 17.2499 11.5969 16.0855 12.8642L16.4951 16.414C16.5254 16.6772 16.4147 16.9369 16.2037 17.0972C15.9927 17.2575 15.7128 17.2946 15.4674 17.1947L11.2797 15.4913C10.5273 15.6864 9.78118 15.75 9 15.75C4.15905 15.75 0 12.5483 0 8.25ZM9 2.25C4.69095 2.25 1.5 5.04835 1.5 8.25C1.5 11.4517 4.69095 14.25 9 14.25C9.77869 14.25 10.451 14.1792 11.1095 13.9816C11.2734 13.9325 11.4491 13.9408 11.6076 14.0053L14.8598 15.3282L14.5549 12.686C14.5287 12.4585 14.6078 12.2316 14.7697 12.0697C15.8609 10.9785 16.5 9.66018 16.5 8.25C16.5 5.04835 13.3091 2.25 9 2.25Z"
-                          fill="#0d5cb6"
-                        ></path>
-                      </svg>
-                      <span>Chat</span>
-                    </div>
+                    <button className="product__info-btn-buy" onClick={handleAddToCart}>
+                      Chọn mua
+                    </button>
+                    {/* <div className="btn product__info-btn-chat">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M0 8.25C0 3.95165 4.15905 0.75 9 0.75C13.8409 0.75 18 3.95165 18 8.25C18 10.0141 17.2499 11.5969 16.0855 12.8642L16.4951 16.414C16.5254 16.6772 16.4147 16.9369 16.2037 17.0972C15.9927 17.2575 15.7128 17.2946 15.4674 17.1947L11.2797 15.4913C10.5273 15.6864 9.78118 15.75 9 15.75C4.15905 15.75 0 12.5483 0 8.25ZM9 2.25C4.69095 2.25 1.5 5.04835 1.5 8.25C1.5 11.4517 4.69095 14.25 9 14.25C9.77869 14.25 10.451 14.1792 11.1095 13.9816C11.2734 13.9325 11.4491 13.9408 11.6076 14.0053L14.8598 15.3282L14.5549 12.686C14.5287 12.4585 14.6078 12.2316 14.7697 12.0697C15.8609 10.9785 16.5 9.66018 16.5 8.25C16.5 5.04835 13.3091 2.25 9 2.25Z"
+                            fill="#0d5cb6"
+                          ></path>
+                        </svg>
+                        <span>Chat</span>
+                      </div> */}
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="product__detail">
-            <h3 className="product__detail--heading">Thông Tin Chi Tiết</h3>
-            <table className="product__detail-table">
-              <tbody>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Thời gian pin</td>
-                  <td className="product__detail-item product__detail-value">
-                    Thoải mái nghe nhạc, gọi điện lên đến 5 giờ (Âm lượng 70%), thời gian chờ 120 giờ
-                  </td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Bluetooth</td>
-                  <td className="product__detail-item product__detail-value">Có</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Thương hiệu</td>
-                  <td className="product__detail-item product__detail-value">OEM</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Xuất xứ thương hiệu</td>
-                  <td className="product__detail-item product__detail-value">China</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Kích thước</td>
-                  <td className="product__detail-item product__detail-value">60,6 * 45,2 * 21,7mm</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Xuất xứ</td>
-                  <td className="product__detail-item product__detail-value">China</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Trọng lượng sản phẩm</td>
-                  <td className="product__detail-item product__detail-value">32g</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Sản phẩm có được bảo hành không?</td>
-                  <td className="product__detail-item product__detail-value">Có</td>
-                </tr>
-                <tr className="product__detail-table-row">
-                  <td className="product__detail-item product__detail-label">Thời gian bảo hành</td>
-                  <td className="product__detail-item product__detail-value">6</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="product__description">
-            <h3 className="product__description--heading">Mô tả sản phẩm</h3>
-            <p className="product__description--title">
-              Tai Nghe Nhét Tai Bluetooth TWS V5.0 Cảm Ứng 2 Bên , Có Mic - Hỗ Trợ Định Vị - Sạc Không Dây
-            </p>
-            <ul>
-              <li>
-                Sản phẩm có thiết kế in-ear, kiểu dáng thời trang, trẻ trung và hiện đại . Kích thước nhỏ gọn, Thuận
-                tiện mang theo
-              </li>
-              <li>Kết nối không dây Bluetooth 5.0 không có độ trễ, chống nhiễu mạnh.</li>
-              <li>Dễ dàng kết nối với các thiết bị bên ngoài, đường truyền ổn định lên đến 10 m</li>
-              <li>
-                Chất âm tai nghe cực tốt với dãy âm trầm cực sâu và âm treble trong trẻo , không bị lost, khả năng dồng
-                bộ video và âm thanh tốt hơn, giảm độ méo âm và giảm độ trễ khi truyền từ thiết bị phát đến tai nghe.
-                thích hợp với mọi thể loại nhạc như EDM, ballad
-              </li>
-              <li>Đàm thoại 2 tai chất lượng cuộc gọi HD cùng công nghệ chống ồn tiên tiến</li>
-              <li>Hai tai nghe kết nối độc lập không phụ thuộc lẫn nhau</li>
-              <li>Cảm ứng chạm dễ dàng điều khiển tai nghe.</li>
-              <li>Tháo tai nghe tự dừng nhạc hoặc tự tùy chỉnh tính năng trong setting</li>
-              <li>Mở nắp dock sạc, nhấn giữ nguồn là tự kết nối popup</li>
-              <li>Tính năng đổi tên & định vị tai trong setting điện thoại</li>
-              <li>Thoải mái nghe nhạc, gọi điện lên đến 5 giờ (Âm lượng 70%), thời gian chờ 120 giờ</li>
-              <li>Hỗ trợ sạc nhanh, cho thời gian sử dụng đến 1 giờ chỉ với 5 phút sạc.</li>
-              <li>Hộp sạc hỗ trợ sạc không dây chuẩn Qi, tiện lợi khi sử dụng</li>
-              <li>Bản lề nhôm chống gập</li>
-              <li>Chuẩn chống nước IPX5, bảo vệ tai nghe an toàn dưới mưa nhỏ và mồ hôi.</li>
-              <li>
-                Sản phẩm được tặng kèm 3 cặp eartip (có 3 kích thước: nhỏ, vừa, lớn) đảm bảo sử dụng vừa khít và thoải
-                mái cho mọi người
-              </li>
-            </ul>
-          </div>
-
-          <div className="product__review">
+          <div className="product__review product__info--bg-white">
             <h3 className="product__review--heading">Đánh Giá - Nhận Xét Từ Khách Hàng</h3>
             <div className="product__review-header product__review-row">
               <div className="product__review-rating">
@@ -755,19 +896,19 @@ function DetailPage() {
                 <div className="product__review-filter">
                   <span className="product__review-filter-label">Lọc xem theo :</span>
                   <div className="product__review-filter-tabs">
-                    <label className="product__review-filter-tab" for="product-filter-1">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-1">
                       <input type="checkbox" id="product-filter-1" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">Mới nhất</span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-2">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-2">
                       <input type="checkbox" id="product-filter-2" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">Có hình ảnh</span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-3">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-3">
                       <input type="checkbox" id="product-filter-3" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">Đã mua hàng</span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-4">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-4">
                       <input type="checkbox" id="product-filter-4" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">
                         5
@@ -792,7 +933,7 @@ function DetailPage() {
                         </svg>
                       </span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-5">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-5">
                       <input type="checkbox" id="product-filter-5" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">
                         4
@@ -817,7 +958,7 @@ function DetailPage() {
                         </svg>
                       </span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-6">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-6">
                       <input type="checkbox" id="product-filter-6" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">
                         3
@@ -842,7 +983,7 @@ function DetailPage() {
                         </svg>
                       </span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-7">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-7">
                       <input type="checkbox" id="product-filter-7" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">
                         2
@@ -867,7 +1008,7 @@ function DetailPage() {
                         </svg>
                       </span>
                     </label>
-                    <label className="product__review-filter-tab" for="product-filter-8">
+                    <label className="product__review-filter-tab" htmlFor="product-filter-8">
                       <input type="checkbox" id="product-filter-8" className="product__review-filter-checkbox" />
                       <span className="product__review-filter-text">
                         1

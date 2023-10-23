@@ -17,11 +17,20 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { addUserCurrent, deleteUserCurrent } from '../../../../../redux/slice/userSlice';
+import { SCREEN_URL } from '../../../../../constants/screen';
+import { useEffect } from 'react';
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
 
 function HeaderAdmin() {
+  const { token, userCurrent } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -33,6 +42,19 @@ function HeaderAdmin() {
   };
 
   const open = Boolean(anchorEl);
+
+  const handleOnLogout = () => {
+    navigate(SCREEN_URL.ADMIN_LOGIN);
+    dispatch(deleteUserCurrent());
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userCurrent = JSON.parse(localStorage.getItem('data_admin'));
+
+    if (!token || !userCurrent) return;
+    dispatch(addUserCurrent({ token, dataUser: userCurrent }));
+  }, []);
 
   return (
     <>
@@ -92,7 +114,7 @@ function HeaderAdmin() {
                 height: 40,
                 width: 40,
               }}
-              src="/assets/avatars/avatar-anika-visser.png"
+              src={token ? userCurrent?.avatar : ''}
             />
           </Stack>
         </Stack>
@@ -114,8 +136,8 @@ function HeaderAdmin() {
           }}
         >
           <Typography variant="overline">Account</Typography>
-          <Typography color="text.secondary" variant="body2">
-            Anika Visser
+          <Typography color="text.secondary" variant="body2" style={{ textTransform: 'capitalize' }}>
+            {token ? userCurrent?.fullName : ''}
           </Typography>
         </Box>
         <Divider />
@@ -129,7 +151,7 @@ function HeaderAdmin() {
             },
           }}
         >
-          <MenuItem>Sign out</MenuItem>
+          <MenuItem onClick={handleOnLogout}>Sign out</MenuItem>
         </MenuList>
       </Popover>
     </>

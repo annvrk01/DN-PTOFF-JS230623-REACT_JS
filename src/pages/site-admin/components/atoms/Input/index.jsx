@@ -1,43 +1,20 @@
-import { TextField } from '@mui/material';
-import { grey } from '@mui/material/colors';
 import React from 'react';
+import styled from '@emotion/styled';
+import { TextField } from '@mui/material';
+import theme from '../../../../../theme';
 
-const inputStyle = (error) => ({
-  width: '320px',
-  fontSize: '0.875rem',
-  fontWeight: 400,
-  lineHeight: 1,
-  color: grey[900],
-  background: '#fff',
-  border: `1px solid grey[300]`,
-
-  '.MuiInputBase-root': {
-    borderRadius: '10px',
-  },
-
-  '.MuiInputBase-input': {
-    padding: '12px 14px',
-  },
-
-  '.MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: error ? '#d32f2f' : '#0a68ff',
-    borderWidth: '3px',
-  },
-});
+const { palette } = theme;
 
 function Input(props) {
-  const { label, name, value, onChange, helperText, required = false, error, type = 'text' } = props;
+  const { label, name, value, onChange, helperText, required = false, error, type = 'text', shrink = true } = props;
 
   return (
-    <TextField
-      sx={() => inputStyle(error)}
+    <InputWrapper
       label={label}
       type={type}
       name={name}
       style={{ width: '100%' }}
-      InputLabelProps={{
-        shrink: true,
-      }}
+      InputLabelProps={shrink ? { shrink: true } : {}}
       required={required}
       value={value}
       onChange={onChange}
@@ -46,5 +23,26 @@ function Input(props) {
     />
   );
 }
+
+const InputWrapper = styled(TextField)(({ error }) => ({
+  width: '320px',
+  fontSize: '0.875rem',
+  fontWeight: 400,
+  lineHeight: 1,
+  color: palette.grey.main,
+
+  '& .MuiInputBase-root': {
+    borderRadius: '10px',
+  },
+
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: palette.grey.main,
+  },
+
+  '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: error ? palette.red.main : palette.primary.main,
+    borderWidth: '3px',
+  },
+}));
 
 export default Input;

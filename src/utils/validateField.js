@@ -1,48 +1,64 @@
+import { MESSAGES, VALIDATE } from '../constants/validate';
+
 const validateField = (value, field) => {
-  if (!value || value.trim() === '') {
-    return 'Trường bạn nhập không được để trống';
+  if ((!value || value.trim() === '') && value !== 0) {
+    return MESSAGES.FIELD_REQUIRED;
   }
-  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-  const phonePattern = /^\d{10}/;
 
   switch (field) {
     case 'fullName':
       if (value.length < 3) {
-        return 'Họ và tên phải có ít nhất 3 ký tự';
+        return MESSAGES.INVALID_FULL_NAME;
       } else {
         return '';
       }
 
     case 'email':
-      if (!emailPattern.test(value)) {
-        return 'Email không hợp lệ';
+      if (!VALIDATE.EMAIL_VALIDATION_REGEX.test(value)) {
+        return MESSAGES.INVALID_EMAIL;
       } else {
         return '';
       }
 
     case 'password':
-      if (value.length < 8) {
-        return 'Password phải có 8 ký tự';
+      if (value.length < VALIDATE.MINIMUM_PASSWORD_LENGTH) {
+        return MESSAGES.INVALID_PASSWORD;
       } else {
         return '';
       }
 
     case 'address':
-      if (value.length < 5) {
-        return 'Địa chỉ phải có ít nhất 5 ký tự';
+      if (value.length < VALIDATE.MINIMUM_ADDRESS_LENGTH) {
+        return MESSAGES.INVALID_ADDRESS;
       } else {
         return '';
       }
 
     case 'phone':
-      if (!phonePattern.test(value)) {
-        return 'Số điện thoại không hợp lệ';
+      if (!VALIDATE.PHONE_VALIDATION_REGEX.test(value)) {
+        return MESSAGES.INVALID_PHONE;
+      } else {
+        return '';
+      }
+
+    case 'priceOdd':
+    case 'priceNew':
+    case 'limitProduct':
+      if (value < 0 || isNaN(value)) {
+        return MESSAGES.INVALID_PRICE_PRODUCT;
+      } else {
+        return '';
+      }
+
+    case 'categoryId':
+      if (!value) {
+        return MESSAGES.PRODUCT_CATEGORY_REQUIRED;
       } else {
         return '';
       }
 
     default:
-      break;
+      return '';
   }
 };
 

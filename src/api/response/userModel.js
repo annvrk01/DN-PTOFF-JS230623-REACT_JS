@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import generatePassword from '../../../../utils/generatePassword';
-import { imageUrl } from '../../../../constants/images';
+import { IMAGE_URL } from '../../../../constants/images';
 import moment from 'moment/moment';
 
 class UserModel {
@@ -17,7 +17,7 @@ class UserModel {
     this.gender = user.gender || 'female';
     this.order = user.order || 0;
     this.spent = user.spent || 0;
-    this.avatar = user.avatar || imageUrl.AVATAR_DEFAULT;
+    this.avatar = user.avatar || IMAGE_URL.AVATAR_DEFAULT;
     this.isPublic = user.isPublic || true;
     this.createdAt = user.createdAt || moment().format();
   }

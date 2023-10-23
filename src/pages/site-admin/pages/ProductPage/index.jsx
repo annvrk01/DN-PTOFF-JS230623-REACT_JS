@@ -5,10 +5,12 @@ import {
   Card,
   Container,
   InputAdornment,
+  MenuItem,
   OutlinedInput,
   Paper,
   Stack,
   SvgIcon,
+  TextField,
   Typography,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -16,15 +18,21 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom';
-import { screenUrl } from '../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../constants/screen';
 import * as XLSX from 'xlsx';
 import { useSelector } from 'react-redux';
 import { ProductsTable } from './ProductsTable';
+import { useState } from 'react';
+import { useMemo } from 'react';
+import moment from 'moment/moment';
 
 ProductPage.propTypes = {};
 
 function ProductPage() {
   const products = useSelector((state) => state.products);
+
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState('');
 
   const handleExportFile = () => {
     var wb = XLSX.utils.book_new(),
@@ -46,68 +54,98 @@ function ProductPage() {
     };
   };
 
+  const handleSearchProduct = (e) => setSearch(e.target.value);
+  const handleFilterProductBySelect = (e) => setFilters(e.target.value);
+
+  const sortProducts = (products, sortBy) => {
+    return [...products].sort((a, b) => {
+      if (sortBy === 'sortProduct|desc') {
+        return a.productName.localeCompare(b.productName);
+      } else if (sortBy === 'sortProduct|asc') {
+        return b.productName.localeCompare(a.productName);
+      } else if (sortBy === 'updatedAt|desc') {
+        return moment(b.updatedAt).diff(moment(a.updatedAt));
+      } else if (sortBy === 'updatedAt|asc') {
+        return moment(a.updatedAt).diff(moment(b.updatedAt));
+      }
+    });
+  };
+
+  const productsFilter = useMemo(() => {
+    let filteredProducts = products.data.filter(
+      (product) =>
+        search === '' ||
+        product.productName.toLowerCase().includes(search.toLowerCase()) ||
+        product.categoryName.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (filters) {
+      filteredProducts = sortProducts(filteredProducts, filters);
+    }
+
+    return filteredProducts;
+  }, [search, filters, products]);
+
   return (
-    <div>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          py: 8,
-        }}
-      >
-        <Container maxWidth="xl">
-          <Stack spacing={3}>
-            <Stack direction="row" justifyContent="space-between" spacing={4}>
-              <Stack spacing={1}>
-                <Typography variant="h4">Quản lý Sản phẩm</Typography>
-                <Stack alignItems="center" direction="row" spacing={1}>
-                  <Button
-                    color="inherit"
-                    component="label"
-                    startIcon={
-                      <SvgIcon fontSize="small">
-                        <UploadIcon />
-                      </SvgIcon>
-                    }
-                  >
-                    Import
-                    <input type="file" hidden onChange={handleImportFile} />
-                  </Button>
-                  <Button
-                    color="inherit"
-                    filename="users table"
-                    sheet="users"
-                    onClick={handleExportFile}
-                    startIcon={
-                      <SvgIcon fontSize="small">
-                        <FileDownloadIcon />
-                      </SvgIcon>
-                    }
-                  >
-                    Export
-                  </Button>
-                </Stack>
-              </Stack>
-              <div>
+    <Box
+      component="main"
+      sx={{
+        flexGrow: 1,
+        py: 8,
+      }}
+    >
+      <Container maxWidth="xl">
+        <Stack spacing={3}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={4}>
+            <Stack spacing={1}>
+              <Typography variant="h4">Quản lý Sản phẩm</Typography>
+              <Stack alignItems="center" direction="row" spacing={1}>
                 <Button
-                  component={Link}
-                  to={screenUrl.ADMIN_CREATE_PRODUCT}
+                  color="inherit"
+                  component="label"
                   startIcon={
                     <SvgIcon fontSize="small">
-                      <AddIcon />
+                      <UploadIcon />
                     </SvgIcon>
                   }
-                  variant="contained"
                 >
-                  Thêm
+                  Import
+                  <input type="file" hidden onChange={handleImportFile} />
                 </Button>
-              </div>
+                <Button
+                  color="inherit"
+                  filename="users table"
+                  sheet="users"
+                  onClick={handleExportFile}
+                  startIcon={
+                    <SvgIcon fontSize="small">
+                      <FileDownloadIcon />
+                    </SvgIcon>
+                  }
+                >
+                  Export
+                </Button>
+              </Stack>
             </Stack>
-            <Card sx={{ p: 2 }} component={Paper} elevation={3}>
+            <Button
+              component={Link}
+              to={SCREEN_URL.ADMIN_CREATE_PRODUCT}
+              startIcon={
+                <SvgIcon fontSize="small">
+                  <AddIcon />
+                </SvgIcon>
+              }
+              variant="contained"
+            >
+              Thêm
+            </Button>
+          </Stack>
+          <Card sx={{ borderRadius: 5 }} component={Paper} elevation={3}>
+            <Stack sx={{ p: 2 }} direction="row" justifyContent="space-between">
               <OutlinedInput
-                defaultValue=""
                 fullWidth
                 placeholder="Tìm kiếm sản phẩm"
+                onChange={handleSearchProduct}
                 startAdornment={
                   <InputAdornment position="start">
                     <SvgIcon color="action" fontSize="small">
@@ -115,14 +153,33 @@ function ProductPage() {
                     </SvgIcon>
                   </InputAdornment>
                 }
-                sx={{ maxWidth: 500 }}
+                sx={{ maxWidth: 800, borderRadius: 3, mb: 2 }}
               />
-            </Card>
-            <ProductsTable />
-          </Stack>
-        </Container>
-      </Box>
-    </div>
+              <TextField
+                id="outlined-select-currency"
+                sx={{
+                  width: 250,
+                  borderRadius: 3,
+                  '.MuiInputBase-root': {
+                    borderRadius: '10px',
+                  },
+                }}
+                select
+                label="Select"
+                defaultValue="updatedAt|desc"
+                onChange={handleFilterProductBySelect}
+              >
+                <MenuItem value="sortProduct|desc">Sắp xếp theo tăng dần (A-Z)</MenuItem>
+                <MenuItem value="sortProduct|asc">Sắp xếp theo giảm dần (Z-A)</MenuItem>
+                <MenuItem value="updatedAt|desc">Cập nhật lần cuối (Mới nhất)</MenuItem>
+                <MenuItem value="updatedAt|asc">Cập nhật lần cuối (Cũ nhất)</MenuItem>
+              </TextField>
+            </Stack>
+            <ProductsTable products={productsFilter} />
+          </Card>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 

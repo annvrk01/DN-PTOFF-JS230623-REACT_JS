@@ -1,29 +1,36 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import { Stack } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { blue } from '@mui/material/colors';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { MESSAGES } from '../../../../constants/validate';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchUsers } from '../../../../api/userApi';
+import { addUserCurrent } from '../../../../redux/slice/userSlice';
+import { SCREEN_URL } from '../../../../constants/screen';
+import { blue } from '@mui/material/colors';
+import { Stack, Typography, Grid, Box, Paper, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
+import AlertMessage from '../../components/atoms/AlertMessage';
+import md5 from 'md5';
 import * as yup from 'yup';
-import { message } from '../../../../constants/validate';
 import './styles.scss';
 
 const schema = yup
   .object({
-    email: yup.string().email(message.EMAIL_WRONG).required(message.EMAIL_REQUIRED),
-    password: yup.string().required(message.PASSWORD_REQUIRED).min(8, message.PASSWORD_WRONG),
+    email: yup.string().email(MESSAGES.INVALID_EMAIL).required(MESSAGES.EMAIL_REQUIRED),
+    password: yup.string().required(MESSAGES.PASSWORD_REQUIRED).min(8, MESSAGES.INVALID_PASSWORD),
   })
   .required();
 
 function LoginPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [error, setError] = useState({
+    isError: false,
+    message: '',
+  });
+
   const {
     register,
     handleSubmit,
@@ -33,8 +40,34 @@ function LoginPage() {
     mode: 'all',
   });
 
-  const handleOnSubmit = () => {
-    console.log('test');
+  const handleCloseMessage = (e, reason) => {
+    if (reason === 'clickaway') return;
+
+    setError({ ...error, isError: false });
+  };
+
+  const handleOnSubmit = async (data) => {
+    try {
+      const { email, password } = data;
+      const usersResponse = await dispatch(fetchUsers());
+      const users = usersResponse.payload;
+
+      const userExists = users.find((user) => email === user.email && user.role === 'admin');
+
+      if (userExists) {
+        if (md5(password) === userExists.password) {
+          const { id, avatar, email, fullName, token } = userExists;
+          dispatch(addUserCurrent({ token, dataUser: { id, avatar, email, fullName, role: 'admin' } }));
+          navigate(SCREEN_URL.ADMIN_HOME);
+        } else {
+          setError({ isError: true, message: MESSAGES.INCORRECT_PASSWORD });
+        }
+      } else {
+        setError({ isError: true, message: MESSAGES.ACCOUNT_DOES_NOT_EXIST });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -91,6 +124,7 @@ function LoginPage() {
           </Box>
         </Stack>
       </Grid>
+      <AlertMessage open={error.isError} type="error" message={error.message} handleClose={handleCloseMessage} />
     </Grid>
   );
 }

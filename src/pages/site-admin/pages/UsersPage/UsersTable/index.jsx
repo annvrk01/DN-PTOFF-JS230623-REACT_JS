@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { screenUrl } from '../../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../../constants/screen';
 import {
   Avatar,
   Box,
@@ -20,14 +20,29 @@ import {
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
-import ModalRemoveUser from './ModalRemoveUser';
+import { deleteUser } from '../../../../../api/userApi';
+import ModalRemove from '../../../components/molecules/ModalRemove';
 
-export const UsersTable = () => {
-  const users = useSelector((state) => state.users);
+export const UsersTable = (props) => {
+  const { users } = props;
+  const dispatch = useDispatch();
+
+  console.log(users);
 
   const [open, setOpen] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setItemsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,7 +53,7 @@ export const UsersTable = () => {
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
-    const allUserIds = users?.data?.map((user) => user.id);
+    const allUserIds = users?.map((user) => user.id);
 
     if (selectAll) {
       setSelectedItems([]);
@@ -58,6 +73,14 @@ export const UsersTable = () => {
     }
   };
 
+  const handleRemoveUser = () => {
+    selectedItems.forEach((userId) => {
+      dispatch(deleteUser(userId));
+    });
+    handleClose();
+    handleClearSelected();
+  };
+
   return (
     <Card>
       <Box sx={{ minWidth: 800 }}>
@@ -69,16 +92,20 @@ export const UsersTable = () => {
               </TableCell>
               {selectedItems.length > 0 ? (
                 <>
-                  <TableCell style={{ padding: '0 12px' }}>Đã chọn {selectedItems.length}</TableCell>
-                  <TableCell style={{ padding: 0 }}></TableCell>
-                  <TableCell style={{ padding: 0 }}></TableCell>
-                  <TableCell style={{ padding: 0 }}></TableCell>
-                  <TableCell style={{ padding: 0 }}></TableCell>
-                  <TableCell style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <IconButton color="black" onClick={handleOpen}>
-                      <DeleteOutlineOutlinedIcon />
-                    </IconButton>
+                  <TableCell style={{ padding: '10px 12px' }}>
+                    <Stack gap={1} direction="row" alignItems="center">
+                      <Typography mr={1}>Đã chọn {selectedItems.length}</Typography>
+                      <Typography>|</Typography>
+                      <IconButton color="black" onClick={handleOpen}>
+                        <DeleteOutlineOutlinedIcon />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: 0 }}></TableCell>
+                  <TableCell style={{ padding: '10px 16px', textAlign: 'center' }}></TableCell>
                 </>
               ) : (
                 <>
@@ -93,7 +120,7 @@ export const UsersTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users?.data?.map(({ id, fullName, avatar, email, address, phone, order, spent }) => (
+            {users?.map(({ id, fullName, avatar, email, address, phone, order, spent }) => (
               <TableRow key={id} hover selected={selectedItems.includes(id)}>
                 <TableCell padding="checkbox">
                   <Checkbox checked={selectedItems.includes(id)} onChange={() => handleSelectItem(id)} />
@@ -114,10 +141,10 @@ export const UsersTable = () => {
                 <TableCell>{order}</TableCell>
                 <TableCell>{spent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                 <TableCell sx={{ textAlign: 'center' }}>
-                  <IconButton color="black" component={Link} to={`${screenUrl.ADMIN_USERS}/${id}`}>
+                  <IconButton color="black" component={Link} to={`${SCREEN_URL.ADMIN_USERS}/${id}`}>
                     <CreateOutlinedIcon />
                   </IconButton>
-                  <IconButton color="black">
+                  <IconButton color="black" component={Link} to={SCREEN_URL.ADMIN_DETAIL_USER.replace(':userId', id)}>
                     <ArrowForwardRoundedIcon />
                   </IconButton>
                 </TableCell>
@@ -128,18 +155,19 @@ export const UsersTable = () => {
       </Box>
       <TablePagination
         component="div"
-        count={0}
-        page={0}
-        rowsPerPage={0}
+        count={users?.length}
+        page={currentPage}
+        rowsPerPage={itemsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
-        onPageChange={() => {}}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      <ModalRemoveUser
+      <ModalRemove
         open={open}
         selectedItems={selectedItems}
         handleClose={handleClose}
-        handleClearSelected={handleClearSelected}
+        handleRemove={handleRemoveUser}
       />
     </Card>
   );

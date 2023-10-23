@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { googleLogout } from '@react-oauth/google';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { addUserCurrent, deleteUserCurrent } from '../../../../../redux/slice/userSlice';
@@ -11,23 +10,37 @@ import CartBlueIcon from '../../../../../assets/images/cart-blue-icon.png';
 import LocationIcon from '../../../../../assets/images/location-icon.png';
 import CategoryIcon from '../../../../../assets/images/category-icon.png';
 import ChatIcon from '../../../../../assets/images/chat-icon.png';
+import { SCREEN_URL } from '../../../../../constants/screen';
+import { fetchProductCartByUserId } from '../../../../../api/cartApi';
+import { clearCartChangeAccount } from '../../../../../redux/slice/cartSlice';
+
 import './styles.scss';
-import { screenUrl } from '../../../../../constants/screen/screenUrl';
 
 function Header() {
   const { token, userCurrent } = useSelector((state) => state.users);
+  const cartData = useSelector((state) => state.cart.data);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleOnLogout = () => {
-    googleLogout();
-    navigate(screenUrl.LOGIN);
+    navigate(SCREEN_URL.LOGIN);
     dispatch(deleteUserCurrent());
+    dispatch(clearCartChangeAccount());
+  };
+
+  const handleRedirectCart = () => {
+    if (!token || !userCurrent) return navigate(SCREEN_URL.LOGIN);
+    navigate(SCREEN_URL.CART);
   };
 
   useEffect(() => {
+    if (!token || !userCurrent) return;
+    dispatch(fetchProductCartByUserId(userCurrent?.id));
+  }, [userCurrent]);
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
-    const userCurrent = JSON.parse(localStorage.getItem('dataUser'));
+    const userCurrent = JSON.parse(localStorage.getItem('data_user'));
 
     if (!token || !userCurrent) return;
     dispatch(addUserCurrent({ token, dataUser: userCurrent }));
@@ -83,10 +96,12 @@ function Header() {
                 </li>
               </ul>
             </button>
-            <Link to="/cart" className="header__btn-cart active">
+            <p className="header__btn-cart active" onClick={handleRedirectCart}>
               <img src={CartBlueIcon} alt="" className="header__action-btn-icon" />
-              <span className="header__cart-quantity">0</span>
-            </Link>
+              <span className="header__cart-quantity">
+                {cartData?.products?.reduce((total, { quantity }) => total + Number(quantity), 0)}
+              </span>
+            </p>
           </div>
         </div>
         <div className="header__bottom">

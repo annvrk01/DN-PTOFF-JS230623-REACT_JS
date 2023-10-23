@@ -19,18 +19,18 @@ import theme from '../../../../theme';
 import AddAPhotoOutlinedIcon from '@mui/icons-material/AddAPhotoOutlined';
 import BackButtonLink from '../../components/atoms/BackButtonLink';
 import Input from '../../components/atoms/Input';
-import { addUser, updateUser } from '../../../../api/userApi';
-import { screenUrl } from '../../../../constants/screen/screenUrl';
+import { addUser, fetchUser, updateUser } from '../../../../api/userApi';
+import { SCREEN_URL } from '../../../../constants/screen';
 import { storage } from '../../../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { imageUrl } from '../../../../constants/images';
+import { IMAGE_URL } from '../../../../constants/images';
 import Loading from '../../../../components/Loading';
 import moment from 'moment/moment';
 import generatePassword from '../../../../utils/generatePassword';
 import validateField from '../../../../utils/validateField';
 
-function UpdateUserPage() {
+function UserUpdatePage() {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.users);
   const navigate = useNavigate();
@@ -47,11 +47,12 @@ function UpdateUserPage() {
     phone: '',
     dayOfBirth: '2023-01-01',
     gender: 'female',
-    order: 0,
+    orders: [],
     spent: 0,
-    avatar: imageUrl.AVATAR_DEFAULT,
+    avatar: IMAGE_URL.AVATAR_DEFAULT,
     isPublic: true,
     createdAt: moment().format(),
+    updatedAt: moment().format(),
   });
   const [errorMessage, setErrorMessage] = useState({
     fullName: '',
@@ -80,8 +81,8 @@ function UpdateUserPage() {
     setIsLoading(true);
 
     uploadBytes(imageRef, imageUpload).then((snapshot) => {
+      setIsLoading(false);
       getDownloadURL(snapshot.ref).then((url) => {
-        setIsLoading(false);
         setUser({ ...user, avatar: url });
       });
     });
@@ -115,8 +116,7 @@ function UpdateUserPage() {
     const hasErrors = Object.values(newErrors).some((error) => error !== '');
 
     if (!hasErrors) {
-      console.log(user);
-      userId ? dispatch(updateUser(user)) : dispatch(addUser(user));
+      userId ? dispatch(updateUser({ ...user, updatedAt: moment().format() })) : dispatch(addUser(user));
       navigate(-1);
       console.log('Form submitted successfully');
     } else {
@@ -125,24 +125,23 @@ function UpdateUserPage() {
   };
 
   useEffect(() => {
-    if (!userId) return;
+    if (userId && users.user) {
+      setUser(users.user);
+    } else if (userId) {
+      dispatch(fetchUser(userId));
+    }
+  }, [userId, users.user]);
 
-    const userUpdate = users?.data?.find((user) => user.id === userId);
-    setUser({ ...userUpdate });
-  }, []);
-
-  console.log(errorMessage);
-
-  return isLoading ? (
+  return isLoading || users.isLoading ? (
     <Loading />
   ) : (
     <Stack>
-      <BackButtonLink linkTo={screenUrl.ADMIN_USERS} />
+      <BackButtonLink linkTo={SCREEN_URL.ADMIN_USERS} />
       <Stack direction="row" mx={3} my={4} alignItems="center" gap={2} flex={1}>
         {userId ? (
           <Stack direction="row" alignItems="center" gap={2}>
             <Avatar sx={{ width: 62, height: 62 }} src={user.avatar}>
-              {user.fullName[0]}
+              {user.fullName}
             </Avatar>
             <Stack gap={1}>
               <Typography variant="h4">{user.email}</Typography>
@@ -310,13 +309,7 @@ function UpdateUserPage() {
           <Button variant="contained" onClick={handleSubmit}>
             {userId ? 'Cập nhật' : 'Tạo'}
           </Button>
-          <Button
-            component={Link}
-            color="black"
-            style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-            to={screenUrl.ADMIN_USERS}
-            variant="contained"
-          >
+          <Button component={Link} color="black" variant="contained" to={SCREEN_URL.ADMIN_USERS}>
             Thoát
           </Button>
         </Stack>
@@ -325,4 +318,4 @@ function UpdateUserPage() {
   );
 }
 
-export default UpdateUserPage;
+export default UserUpdatePage;

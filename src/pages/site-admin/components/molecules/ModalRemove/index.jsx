@@ -1,8 +1,6 @@
 import React from 'react';
 import { Backdrop, Box, Button, Grow, Modal, Paper, Stack, Typography } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import warningIcon from '../../../../../../assets/images/warning-icon.png';
-import { deleteUser } from '../../../../../../api/userApi';
+import warningIcon from '../../../../../assets/images/warning-icon.png';
 
 const style = {
   position: 'absolute',
@@ -16,22 +14,11 @@ const style = {
   p: 4,
 };
 
-function ModalRemoveUser(props) {
-  const { open, selectedItems, handleClose, handleClearSelected } = props;
-  const dispatch = useDispatch();
-
-  const handleRemoveUser = () => {
-    selectedItems.forEach((userId) => {
-      dispatch(deleteUser(userId));
-    });
-    handleClose();
-    handleClearSelected();
-  };
+function ModalRemove(props) {
+  const { open, handleClose, handleRemove } = props;
 
   return (
     <Modal
-      aria-labelledby="transition-modal-title"
-      aria-describedby="transition-modal-description"
       open={open}
       onClose={handleClose}
       closeAfterTransition
@@ -54,7 +41,7 @@ function ModalRemoveUser(props) {
             <Button variant="contained" color="gray" style={{ color: 'white' }} onClick={handleClose}>
               Thoát
             </Button>
-            <Button variant="contained" color="red" style={{ color: 'white' }} onClick={handleRemoveUser}>
+            <Button variant="contained" color="red" style={{ color: 'white' }} onClick={handleRemove}>
               Xoá
             </Button>
           </Stack>
@@ -64,4 +51,4 @@ function ModalRemoveUser(props) {
   );
 }
 
-export default ModalRemoveUser;
+export default ModalRemove;

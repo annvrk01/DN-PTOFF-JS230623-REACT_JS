@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import BackgroundForm from '../../../../assets/images/bg-form-1.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { imageUrl } from '../../../../constants/images';
 import { useDispatch } from 'react-redux';
 import { addUserCurrent } from '../../../../redux/slice/userSlice';
-import { addUser, getUsers } from '../../../../api/userApi';
+import { addUser, fetchUsers } from '../../../../api/userApi';
 import googleIcon from '../../../../assets/images/google-icon.png';
 import facebookIcon from '../../../../assets/images/facebook-icon.png';
 import md5 from 'md5';
-import moment from 'moment/moment';
 import validateField from '../../../../utils/validateField';
 import { FacebookAuth, GoogleAuth } from '../../../../firebase/auth';
 import './styles.scss';
-import { screenUrl } from '../../../../constants/screen/screenUrl';
+import { SCREEN_URL } from '../../../../constants/screen';
+import { IMAGE_URL } from '../../../../constants/images';
+import moment from 'moment/moment';
 
 function LoginPage() {
   const dispatch = useDispatch();
@@ -56,23 +56,23 @@ function LoginPage() {
   const handleSubmit = async () => {
     try {
       if (validateForm()) {
-        const usersResponse = await dispatch(getUsers());
+        const usersResponse = await dispatch(fetchUsers());
         const users = usersResponse.payload;
 
         const userExists = users.find(({ email }) => email === user.email);
 
         if (userExists) {
-          const { fullName, email, password, avatar, token } = userExists;
+          const { id, fullName, email, password, avatar, token } = userExists;
 
           if (email === user.email && password === md5(user.password)) {
-            dispatch(addUserCurrent({ token, dataUser: { fullName, email, avatar } }));
-            navigate(screenUrl.HOME);
+            dispatch(addUserCurrent({ token, dataUser: { id, fullName, email, avatar } }));
+            navigate(SCREEN_URL.HOME);
           } else {
             setErrorMessage({ ...errorMessage, password: 'Email hoặc mật khẩu không đúng' });
           }
         } else {
           setErrorMessage({ ...errorMessage, password: 'Tài khoản không tồn tại' });
-          navigate(screenUrl.REGISTER);
+          navigate(SCREEN_URL.REGISTER);
         }
       } else {
         console.log('Form has errors');
@@ -85,12 +85,33 @@ function LoginPage() {
   const handleLogin = async (authProvider) => {
     try {
       const data = await authProvider();
-      const users = await dispatch(getUsers());
+      const users = await dispatch(fetchUsers());
       const userExists = users.payload.find((user) => user.id === data.id);
-      const { fullName, email, avatar, token } = userExists || data;
 
-      dispatch(addUserCurrent({ token, dataUser: { fullName, email, avatar } }));
-      navigate(screenUrl.HOME);
+      const user = {
+        id: uuidv4(),
+        fullName: '',
+        email: '',
+        password: '',
+        country: '',
+        state: '',
+        address: '',
+        phone: '',
+        dayOfBirth: '2023-01-01',
+        gender: 'female',
+        orders: [],
+        spent: 0,
+        avatar: IMAGE_URL.AVATAR_DEFAULT,
+        isPublic: true,
+        createdAt: moment().format(),
+        token: '',
+      };
+
+      if (!userExists) await dispatch(addUser({ ...user, ...data, password: '' }));
+
+      const { id, token, fullName, email, avatar } = userExists || data;
+      await dispatch(addUserCurrent({ token, dataUser: { id, fullName, email, avatar } }));
+      navigate(SCREEN_URL.HOME);
     } catch (error) {
       console.log(error);
     }
