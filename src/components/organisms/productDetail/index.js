@@ -19,7 +19,7 @@ import CartUtil from "../../../util/CartUtil";
 
 
 export default function ProductDetail() {
-
+    const [didLiked, setLikes] = useState(false);
     const [cart, setCart] = useState(null);
     const [isCartShowing, setCartShowing] = useState(false);
 
@@ -317,7 +317,15 @@ export default function ProductDetail() {
                             </h1>
 
                             <div className="btn-action btn-bookmark-product " title="Bookmark">
-                                <span className="count" id="likes-count">
+                                <span className="count" onClick={() => {
+                                    if(!didLiked){
+                                        product.likes_count += 1;
+                                        setLikes(true);
+                                    }else{
+                                        product.likes_count -=1;
+                                        setLikes(false);
+                                    }
+                                }}>
                                     {product.likes_count}
                                 </span>
                             </div>
