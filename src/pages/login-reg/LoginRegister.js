@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import "../../styles/login-register/loginReg.css"
 function LoginRegister() {
- 
   return (
-    <div className="container bbbbbbbbbb aaaaaaaaaaaaaa">
+    <div className="container">
       <div className="login-container">
         <div className="cover">
           <img src="/assets/img/login.png" alt="" />

@@ -10,8 +10,8 @@ header .header-heading {
 header .header-wrapper {
   position: relative;
   padding: 10px 100px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
 }
 header .header-wrapper .logo {
@@ -22,7 +22,8 @@ header .header-wrapper .logo img {
   filter: invert(100%);
 }
 header .header-wrapper .search {
-  width: 60%;
+  position: relative;
+  width: 100%;
   border: 1px solid transparent;
   border-radius: 35px;
   background-color: white;
@@ -45,7 +46,7 @@ header .header-wrapper .search i {
   font-size: 20px;
 }
 header .header-wrapper .right-side {
-  width: 20%;
+  /* width: 20%; */
   display: flex;
   justify-content: end;
 }

@@ -1,20 +1,24 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import SearchBar from '../../../../component/searchBar/SearchBar';
+import { useState } from 'react';
+import SearchResultsList from '../../../../component/searchResults/SearchResultsList';
 const Header = () => {
+    const [results, setResults] = useState([]);
         return (
             <div>
                 <header>
                     <div className="header-heading" />
                     <div className="header-wrapper">
                         <div className="logo">
-                        
                         <Link to={"/"}>
                                 <img src="/assets/img/logoDO.png" alt="" />
                                 </Link>
                         </div>
-                        <div className="search">
-                            <input type="text" placeholder="Tìm tên thuốc, thực phẩm,..." />
-                            <i className="fa-solid fa-magnifying-glass" />
+                        <div className='search-container'>
+
+                       <SearchBar  setResults={setResults}/>
+                       {results && results.length > 0 && <SearchResultsList results={results} />}
                         </div>
                         <div className="right-side">
                             <div className="login">
@@ -26,7 +30,6 @@ const Header = () => {
                                 <a href="">Giỏ hàng</a>
                             </div>
                         </div>
-                        <div className="header-foot"></div>
                     </div>
                 </header>
             </div>
