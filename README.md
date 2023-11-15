@@ -1,17 +1,3 @@
-## 1. Kiểm tra user khi order về limit sản phẩm và nếu user A order 70sp và user B order 70sp mà limit 100sp thì làm sao
-
-## 2. Khoa tai khoan user
-
-## 3. Tim kiem nang cao
-
-## 4. Comment chan code html hoac script
-
----
-
-##
-
----
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
