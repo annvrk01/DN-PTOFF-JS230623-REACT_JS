@@ -1,24 +1,23 @@
 import { useState } from "react";
 import "./signup.css";
 
-import { isFunction, reloadPage} from "../../../../util/utils";
+import { isFunction, reloadPage } from "../../../../util/utils";
 import Authen from "../../../../util/Authen";
 
 export default function SignupContainer(props) {
   const { hideSignupShowLogin, hideSignup } = props;
 
-  const [ inputEmail, setInputEmail ] = useState("");
-  const [ inputPassword, setInputPassword ] = useState("");
-  const [ inputUsername, setInputUsername ] = useState("");
+  const [inputEmail, setInputEmail] = useState("");
+  const [inputPassword, setInputPassword] = useState("");
+  const [inputUsername, setInputUsername] = useState("");
 
-  const [ doesUserExist, setDoesUserExist ] = useState(false);
-  const [ isEmailInvalid, setIsEmailInvalid ] = useState(false);
-  const [ isPasswordInvalid, setIsPasswordInvalid ] = useState(false);
-
+  const [doesUserExist, setDoesUserExist] = useState(false);
+  const [isEmailInvalid, setIsEmailInvalid] = useState(false);
+  const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
 
   function handleInputEmailChange(event) {
     setInputEmail(event.target.value);
-  }  
+  }
 
   function handleInputPasswordChange(event) {
     setInputPassword(event.target.value);
@@ -28,39 +27,46 @@ export default function SignupContainer(props) {
     setInputUsername(event.target.value);
   }
 
-  function signupSubmit(event){
+  function signupSubmit(event) {
     event.preventDefault();
 
-    let authenResult = Authen.signupSubmit(inputEmail, inputPassword);
+    let authenResult = Authen.signupSubmit(
+      inputEmail, 
+      inputUsername,
+      inputPassword)
+      .then((authenResult) => {
+        if (authenResult.invalidEmail) {
+          setIsEmailInvalid(true);
+        } else {
+          setIsEmailInvalid(false);
+        }
 
-    if(authenResult.invalidEmail){
-      setIsEmailInvalid(true);
-    }else{
-      setIsEmailInvalid(false);
-    }
+        if (authenResult.invalidPassword) {
+          setIsPasswordInvalid(true);
+        } else {
+          setIsPasswordInvalid(false);
+        }
 
-    if(authenResult.invalidPassword){
-      setIsPasswordInvalid(true);
-    }else{
-      setIsPasswordInvalid(false);
-    }
+        if (authenResult.accountExisted) {
+          setDoesUserExist(true);
+        } else {
+          setDoesUserExist(false);
+        }
 
-    if(authenResult.accountExisted){
-      setDoesUserExist(true);
-    }else{
-      setDoesUserExist(false);
-    }
-
-    if(authenResult.isSignupPassed()){
-      console.info("sign up success, CONGRAT !!!");
-      reloadPage();
-    }
+        if (authenResult.isSignupPassed()) {
+          console.info("sign up success, CONGRAT !!!");
+          reloadPage();
+        }
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
   }
 
   function suContainerHideSignupShowLogin() {
     hideSignupShowLogin();
   }
-  
+
   return (
     <div className="dim">
       <div className="signup-container">
@@ -94,7 +100,6 @@ export default function SignupContainer(props) {
                   The password must be 8 - 50 characters long.
                 </div>
               ) : null}
-
 
               <p>
                 <label htmlFor="su_email">Email</label>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./cart.css";
-import { AuthorUtil, ProductUtil, reloadPage } from "../../../../util/utils";
+import ProductUtil from "../../../../util/ProductUtil";
+import { AuthorUtil, reloadPage } from "../../../../util/utils";
 import CartUtil from "../../../../util/CartUtil";
 
 export default function ShopBasket(props) {
@@ -55,7 +56,7 @@ export default function ShopBasket(props) {
                   );
                   if (!product) {
                     return (
-                      <p>
+                      <p key={idx}>
                         {" "}
                         NO Product with id {eachCartItem.productId} given by
                         eachCartItem.productId

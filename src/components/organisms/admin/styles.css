@@ -190,6 +190,8 @@ body {
 .jHsXUi:hover {
   color: rgb(255, 255, 255) !important;
 }
+
+
 @media (max-width: 1024px) and (min-width: 768px) {
   .mainWrap {
     width: 90%;
@@ -241,3 +243,4 @@ body {
     display: none;
   }
 }
+

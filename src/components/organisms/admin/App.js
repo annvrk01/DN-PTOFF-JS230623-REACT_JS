@@ -1,7 +1,8 @@
 /* eslist-disable */
+
 import React from "react";
 import "./styles.css";
-import "./css/bootstrap.css";
+
 
 import { Route, BrowserRouter, Routes, useLocation } from "react-router-dom";
 import TopWrap from "./topWrap/topWrap";
@@ -16,7 +17,6 @@ import { Link } from "react-router-dom";
 export default function App() {
   return (
     <div>
-      {/* <TopWrap /> */}
       <BrowserRouter>
         {/* <Navbar expand="lg" className="bg-body-tertiary">
           <Container>
@@ -60,7 +60,8 @@ export default function App() {
           </Container>
         </Navbar> */}
 
-        <LeftNav />
+        <NavBarHome/>
+        {/* <LeftNav /> */}
       </BrowserRouter>
     </div>
   );

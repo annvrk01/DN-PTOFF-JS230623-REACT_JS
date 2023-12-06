@@ -9,9 +9,3 @@ export const STUDENT={
 export const PRODUCT={
     ADD: "PRODUCT_ADD",
 }
-
-export const URL_SERVER ="http://localhost:3000";
-
-export const Url_path_product="/product";
-export const Url_path_cart = "/cart";
-export const Url_path_user ="/user";

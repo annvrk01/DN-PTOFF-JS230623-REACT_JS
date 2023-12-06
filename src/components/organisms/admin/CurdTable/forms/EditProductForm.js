@@ -1,44 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Form } from "react-bootstrap";
 import "../../css/bootstrap.css";
 
-const AddUserForm = props => {
+const EditProductForm = props => {
+  const [product, setProduct] = useState(props.selectedProduct);
 
-  const initialFormState = {
-    username: "",
-    firstname: "",
-    lastname: "",
-    email: ""
-  };
-
-  const [user, setUser] = useState(initialFormState);
+  useEffect(() => {
+    setProduct(props.selectedProduct);
+  }, [props.selectedProduct]);
+  
 
   const handleInputChange = event => {
     const { name, value } = event.target;
-    console.log('handleInputChange, name = ' + name + ', value = ', value);
-    setUser({ ...user, [name]: value });
+    setProduct({ ...product, [name]: value });
   };
 
   return (
     <form
       onSubmit={event => {
         event.preventDefault();
-        if (!user.username || !user.firstname || !user.lastname || !user.email){
-          console.log('some thing was null, empty, equal 0 or undefined !', user);
-          return;
-        }
 
-        props.addUser(user);
-        setUser(initialFormState);
+        props.updateProduct(product.id, product);
       }}
     >
       <Form.Group>
-        <Form.Label>Username</Form.Label>
+        <Form.Label>productname</Form.Label>
         <Form.Control
-          type="text"
-          placeholder="username"
-          name="username"
-          value={user.username}
+          type="number"
+          placeholder="productname"
+          name="productname"
+          value={product.productname || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -48,7 +39,7 @@ const AddUserForm = props => {
           type="text"
           placeholder="First Name"
           name="firstname"
-          value={user.firstname}
+          value={product.firstname || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -58,7 +49,7 @@ const AddUserForm = props => {
           type="text"
           placeholder="Last Name"
           name="lastname"
-          value={user.lastname}
+          value={product.lastname || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -68,14 +59,19 @@ const AddUserForm = props => {
           type="text"
           placeholder="Enter email"
           name="email"
-          value={user.email}
+          value={product.email || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
-
-      <button className="btn btn-primary">Add new user</button>
+      <button className="btn btn-primary mr-2">Update product</button>
+      <button
+        onClick={() => props.setEditing(false)}
+        className="btn btn-danger"
+      >
+        Cancel
+      </button>
     </form>
   );
 };
 
-export default AddUserForm;
+export default EditProductForm;

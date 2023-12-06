@@ -1,19 +1,34 @@
-import { fixUpId } from "./utils"
-
+import { StringUtil, fixUpId } from "./utils"
 
 export class FakeDataGenerator {
-
+    
     static generateFakeUserData() {
-        return [
+        let users = [
             { email: 'abc', password: '123', id: '0' },
             { email: 'hoe', password: 'xzcwd', id: '1' },
-            { email: 'Tran Quang Tri', password: '23214adssd', id: '2' },
+            { email: 'Tran Quang Tri', password: '23214adssd', id: '2', firstName: "Tran Quang", lastname: "Tri", username: "tquangtri" },
             { email: 'abc661', password: 'ccxz2123', id: '3' },
             { email: 'abc5152', password: 'abc123', id: '4' },
             { email: 'abc12321', password: 'abC1235JJJsd', id: '5' },
             { email: 'h', password: '1', id: '6' },
             { email: 'q', password: '2', id: '7' },
-        ]
+        ];
+
+        users.forEach(
+            each => {
+                if(!each.firstName){
+                    each.firstName = StringUtil.randomString();
+                }
+                if(!each.lastname){
+                    each.lastname = StringUtil.randomString();
+                }
+                if(!each.username){
+                    each.username = StringUtil.randomString();
+                }
+            }
+        )
+
+        return users;
     }
     static generateFakeUserCart() {
         return [            

@@ -1,10 +1,13 @@
 /* eslint-disable */
-import { key_currentUser, key_usersDB } from "./constants";
+import RequestBuilder from "./AxiosWrapper";
+import { key_currentUser, key_usersDB, URL_SERVER } from "./constants";
 import FakeData from "./FakeData";
 import { AuthenResult, load, hash, AccountUtil, save, removeFromStorage, reloadPage } from "./utils";
 
+import axios from "axios";
 
 export default class Authen {
+    static DEFAULT_PAGE_SIZE = 5;
     static logOut(){
         if(hadLoggedIn() === false)
             return;
@@ -12,10 +15,124 @@ export default class Authen {
         removeFromStorage(key_currentUser);
         reloadPage();
     }
+
+    static async #cacheUser(user){
+        save(key_currentUser)
+    }
+    
+    static async deleteUser(params){
+        let user = {};
+        if(!isNaN(Number(params)))
+            user.id = params;
+        else{
+            if(params.id === undefined){                
+                user.id = params.id;
+            }
+        }
+        
+        let _response = null;
+        await RequestBuilder.del().url("user/" + user.id)
+        .onSuccess( 
+            (response) => {
+                console.log("response ", response);
+                _response = response
+            }
+        )
+        .send();        
+        return _response;
+    }
+
+    static async updateUser(user){
+        let _response = null;
+        await RequestBuilder.put().url("user/" + user.id)
+        .body(user)
+        .onSuccess( 
+            (response) => {
+                console.log("response ", response);
+                _response = response
+            }
+        )
+        .send();        
+        return _response;
+    }
+
+    static async addUser(user){
+        let _response = null;
+        await RequestBuilder.post().url("user/")
+        .body(user)
+        .onSuccess( 
+            (response) => {
+                console.log("response ", response);
+                _response = response
+            }
+        )
+        .send();        
+        return _response;
+    }
+
+    /***
+     * @deprecated
+     * This async (like all async) returns a promise 
+     * whose resolve param is 'users'
+     * Call getAllUsers().then(users => {...}) to access the desired 'users' result
+     * @returns {Promise} 
+     */
+    static async getAllUsers() {        
+        // let users = load(key_usersDB);
+        // if(!users || users.length === 0){
+        //     this.#createFakeUserDB();
+        //     users = load(key_usersDB);
+        // }
+
+        let users = null;
+        await RequestBuilder.get().url("user/")
+        .onSuccess( 
+            (response) => {
+                console.log("response ", response);   
+                users = response.data.content;          
+            }
+        )
+        .send();        
+        return users;
+    }
+
+    /**
+     * 
+     * @param {string} key 
+     * @param {number} page 
+     * @param {number} size 
+     * @param {string} sortOrder in ['asc', 'des']
+     * @param {string} sortBy 
+     * @returns {Promise}
+     */
+    static async getUserPaging(key , page, size, sortOrder, sortBy){
+        // key = key || "";
+        // page = page || 1; 
+        // size = size || this.DEFAULT_PAGE_SIZE; 
+        sortOrder = sortOrder || "asc"; 
+        sortBy = sortBy || "username";
+
+        let result = null;
+        await RequestBuilder.get().url("user/")
+        .params({ 
+            key: key || "",
+            page: page || 1,
+            size: size || this.DEFAULT_PAGE_SIZE, 
+            sort: sortOrder + "," + sortBy
+          })
+        .onSuccess( 
+            (response) => {
+                console.log("response ", response);   
+                result = response.data;     
+            }
+        )
+        .send();        
+        return result;  
+    }
+
     static getCurrentUser() {
         if(hadLoggedIn() === false)
             return null;
-
 
         let user = load(key_currentUser);
         return {
@@ -30,50 +147,32 @@ export default class Authen {
      * @param {string} inputPassword
      * @returns {AuthenResult}
      */
-    static loginSubmit(inputEmail, inputPassword) {
+    static async loginSubmit(inputEmail, inputPassword) {
         let authenResult = Authen.#validate(inputEmail, inputPassword);
 
-        if (authenResult.isInvalidInput()) {
-            console.log("did NOT passed validation");
-            return authenResult;
-        }
+        // if (authenResult.isInvalidInput()) {
+        //     console.log("did NOT passed validation");
+        //     return authenResult;
+        // }
 
         console.log("validate success, checking in with DB...");
 
-        let hasAccountExisted = false;
-        let userDB = load(key_usersDB);
-
-        if (!userDB) {
-            Authen.#createFakeUserDB();
-            userDB = load(key_usersDB);
-        }
-
-        let userFound = null;
-        userDB.every((user) => {
-            let hashedInputPassword = hash(inputPassword);
-
-            //user.password in DataBase is already hashed
-            hasAccountExisted = inputEmail === user.email
-                && hashedInputPassword === user.password;
-
-            if (hasAccountExisted) {
-                userFound = user;
-                console.log("login-success, user found");
-
-                return false; //break out of userDB.every;
-            }
-            return true; //continue userDB.every;
-        });
-
-        if (hasAccountExisted) {
-            Authen.#onLoginSuccess(userFound.id, inputEmail, inputPassword);
-
+        await RequestBuilder.post().url("user/login").body({
+            email: inputEmail,
+            password: inputPassword
+        })
+        .onSuccess( (response) => {
+            console.log("login success, ", response);
+            Authen.#onLoginSuccess(response.data.user);
             authenResult.accountExisted = true;
-        } else {
-            Authen.#onLoginFailure(inputEmail, inputPassword);
+        })
+        .onFailure( (error) => {
+            console.error(error);
 
+            Authen.#onLoginFailure(inputEmail, inputPassword);
             authenResult.accountExisted = false;
-        }
+        })
+        .send();        
         return authenResult;
     }
 
@@ -82,8 +181,7 @@ export default class Authen {
      * @param {string} inputPassword
      * @returns {AuthenResult}
      */
-    static signupSubmit(inputEmail, inputPassword) {
-
+    static async signupSubmit(inputEmail, inputUsername, inputPassword) {
         let authenResult = Authen.#validate(inputEmail, inputPassword);
 
         if (authenResult.isInvalidInput()) {
@@ -92,39 +190,30 @@ export default class Authen {
         }
 
         console.log("validate success, checking in with DB...");
-
-
-        let hasAccountExisted = false;
-        let userDB = load(key_usersDB);
-
-        if (!userDB) {
-            Authen.#createFakeUserDB();
-            userDB = load(key_usersDB);
-        }
-
-        userDB.every((user) => {
-            let hashedInputPassword = hash(inputPassword);
-
-            //user.password is already hashed
-            hasAccountExisted = inputEmail === user.email
-                && hashedInputPassword === user.password;
-
-            if (hasAccountExisted) {
-                console.log("signup-failed cuz user existed");
-                return false; //break out of userDB.every;
+        
+        await RequestBuilder.post()
+        .url("user/register")
+        .body({
+            email:inputEmail,
+            username:inputUsername,
+            password:inputPassword,
+            role: "customer"
+        })
+        .onSuccess(
+            (response) => {
+                console.log("post register success: ", response);
+                Authen.#onSignupSuccess(inputEmail, inputPassword);
+                authenResult.accountExisted = false;
             }
-            return true; //continue userDB.every;
-        });
-
-        if (hasAccountExisted) {
-            Authen.#onSignupFailure();
-
-            authenResult.accountExisted = true;
-        } else {
-            Authen.#onSignupSuccess(inputEmail, inputPassword);
-
-            authenResult.accountExisted = false;
-        }
+        )
+        .onFailure(
+            (err) => {
+                console.log("post register error: ", err);
+                Authen.#onSignupFailure();
+                authenResult.accountExisted = true;
+            }
+        )
+        .send();
         return authenResult;
     };
 
@@ -173,23 +262,17 @@ export default class Authen {
     }
 
     static #onSignupFailure = () => {
-        console.log('onLoginFailure');
+        console.log('onSignupFailure');
     };
 
-    /***
-     * @param {number} userId
-     * @param {string} inputEmail
-     * @param {string} hashedInputPassword
-     */
-    static #onLoginSuccess = (userId, inputEmail, hashedInputPassword) => {
-        console.log('onLoginSuccess');
-        let currentUser = { id: userId, email: inputEmail, password: hashedInputPassword };
-        save(key_currentUser, currentUser);
+    static #onLoginSuccess = (user)=> {
+        console.log('onLoginSuccess, user:', user);
+        save(key_currentUser, user);
     }
 
 
     static #onLoginFailure = () => {
-        console.log("onSignupFailure");
+        console.log("onLoginFailure");
     };
 
     static #onSignupSuccess = (inputEmail, inputPassword) => {

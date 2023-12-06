@@ -4,7 +4,7 @@ import Services from "./../services/service";
 import LineChart from "./../charts/lineChart";
 import PieChart from "./../charts/charts";
 import Search from "./../search/search";
-import Adddata from "./../CurdTable/addData";
+import Adddata from "../CurdTable/userManagement";
 
 import { Route, BrowserRouter, Routes, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,6 @@ import searchicon from "./magnifying-glass-2.png";
 import addUsericon from "./user.png";
 import Chart from 'chart.js/auto';
 import "@trendmicro/react-sidenav/dist/react-sidenav.css";
-import CustomerHome from "../../customer-home";
 import ProductDetail from "../../product-detail";
 
 export default function LeftNav() {
@@ -25,12 +24,21 @@ export default function LeftNav() {
   const reactNavigate = useNavigate();
 
   return (
-    <Routes>
-      <Route path="/" exact element={<CustomerHome />} />
+    <Routes>     
+       
+      {/* <Route path="/" exact element={<HomeCopy />} />
       <Route path="/product-detail" element={<ProductDetail />} />
-      <Route path="/product-detail/:id" element={<ProductDetail />} />
+      <Route path="/product-detail/:id" element={<ProductDetail />} /> */}
 
-      <Route basename="/admin">
+      <Route path="/home" element={<HomeCopy />} />
+      <Route path="/Services" element={<Services />} />
+      <Route path="/LineChart" element={<LineChart />} />
+      <Route path="/PieChart" element={<PieChart />} />
+
+      <Route path="/Search" element={<Search />} />
+      <Route path="/Adddata" element={<Adddata />} />
+
+      {/* <Route basename="/admin">
         <React.Fragment>
           <SideNav onSelect={selected => {
             console.log('onSelect SideNav');
@@ -83,17 +91,10 @@ export default function LeftNav() {
           </SideNav>
 
           <main className="mainWrap">
-            <Route path="/" exact element={<HomeCopy />} />
-            <Route path="/home" element={<HomeCopy />} />
-            <Route path="/Services" element={<Services />} />
-            <Route path="/LineChart" element={<LineChart />} />
-            <Route path="/PieChart" element={<PieChart />} />
-
-            <Route path="/Search" element={<Search />} />
-            <Route path="/Adddata" element={<Adddata />} />
+            
           </main>
         </React.Fragment>
-      </Route>
+      </Route> */}
     </Routes>
   );
 }

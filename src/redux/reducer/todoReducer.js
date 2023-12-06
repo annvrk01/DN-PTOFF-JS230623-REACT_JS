@@ -13,55 +13,47 @@ const initialState = {
 export const todoReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_TODO:
-      let todoNew = [...state.todos];
-      todoNew.push(action.payload)
       return {
         ...state,
-        todos: todoNew
+        todos:  [...state.todos, action.payload]
       }
     case 'DELETE_TODO':
       console.log('DELETE_TODO')
-      const updatedTodos = state.todos.filter(todo => todo.id !== action.payload.id)
       return {
         ...state,
-        todos: updatedTodos
+        todos: state.todos.filter(todo => todo.id !== action.payload.id)
       }
     case 'UPDATE_TODO':
       console.log('UPDATE_TODO')
-      const updatedTodoList = state.todos.map(todo => {
-        if (todo.id === action.payload.id) {
-          return {
-            ...todo,
-            name: action.payload.name,
-            completed: action.payload.completed
-          }
-        } else {
-          return todo
-        }
-      })
       return {
         ...state,
-        todos: updatedTodoList
+        todos: state.todos.map(todo => {
+          if (todo.id === action.payload.id) {
+            return {
+              ...todo,
+              name: action.payload.name,
+              completed: action.payload.completed
+            }
+          } else {
+            return todo
+          }
+        })
       }
     // Start xử lý phần student
     case STUDENT.STUDENT_INIT:
-      let newStudentList = (action.payload.studentList);
       return {
         ...state,
-        students: newStudentList
+        students: action.payload.studentList
       }
     case STUDENT.STUDENT_ADD:
-      let students = [...state.students];
-      students.push(action.payload)
       return {
         ...state,
-        students: students
+        students: [...state.students, action.payload]
       }
     case STUDENT.STUDENT_DELETE:
-      const updatedStudents = state.students.filter(todo => todo.id !== action.payload.id)
       return {
         ...state,
-        students: updatedStudents
+        students: state.students.filter(todo => todo.id !== action.payload.id)
       }
     // end xử lý phần student  
     default:

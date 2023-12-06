@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Authen from "../../../../util/Authen";
-import { reloadPage } from "../../../../util/utils";
+import { AuthenResult, reloadPage } from "../../../../util/utils";
 
 export default function LoginDropdown(props) {
   const [ doesUserExist, setDoesUserExist ] = useState(true);
@@ -18,34 +18,36 @@ export default function LoginDropdown(props) {
     setInputPassword(event.target.value);
   }
 
-  function loginSubmit(event) {
+  async function loginSubmit(event) {
     event.preventDefault();
-    let authenResult = Authen.loginSubmit(inputEmail, inputPassword);
+    Authen.loginSubmit(inputEmail, inputPassword)
+    .then(
+      /***
+       * @param {AuthenResult} authenResult
+       */
+      (authenResult) => {
 
-    if (authenResult.invalidEmail) {
-      setIsEmailInvalid(true);
-    } else {
-      setIsEmailInvalid(false);
-    }
+        if (authenResult.invalidEmail) {
+          setIsEmailInvalid(true);
+        } else {
+          setIsEmailInvalid(false);
+        }
+    
+        if (authenResult.invalidPassword) {
+          setIsPasswordInvalid(true);
+        } else {
+          setIsPasswordInvalid(false);
+        }
+    
+        if (authenResult.isLoginPassed()) {
+          reloadPage();
+        }
+      }
+    )
+    .catch((err) => {
+      console.error("loginSubmit error",err);
+    });
 
-    if (authenResult.invalidPassword) {
-      setIsPasswordInvalid(true);
-    } else {
-      setIsPasswordInvalid(false);
-    }
-
-    if (authenResult.accountExisted) {
-      setDoesUserExist(true);
-    } else {
-      //don't display user not existed before both input email & password are valid first
-      if(authenResult.invalidEmail === false
-        && authenResult.invalidPassword === false)
-          setDoesUserExist(false);
-    }
-
-    if (authenResult.isLoginPassed()) {
-      reloadPage();
-    }
   }
 
   return (
@@ -96,7 +98,6 @@ export default function LoginDropdown(props) {
                   type="password"
                   onChange={handleInputPasswordChange}
                   autoComplete="current-password"
-                  v-model="input_login_password"
                 />
                 <br />
               </div>

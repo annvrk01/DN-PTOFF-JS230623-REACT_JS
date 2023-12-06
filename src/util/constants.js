@@ -25,7 +25,14 @@ const display_context = Object.freeze({
 })
 
 
+const URL_SERVER ="http://localhost:8000/api/";
+
+const Url_path_product="product/";
+const Url_path_cart = "cart/";
+const Url_path_user ="user/";
+
 export {
     app_context, display_context, emailRegex, passwordRegex,
-    key_cart, key_IdOfProductToDisplay, key_currentUser, key_usersDB, salt
+    key_cart, key_IdOfProductToDisplay, key_currentUser, key_usersDB, salt, 
+    URL_SERVER, Url_path_product, Url_path_cart, Url_path_user
 }

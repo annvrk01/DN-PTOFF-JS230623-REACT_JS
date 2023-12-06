@@ -6,6 +6,7 @@ export default function AdminHome() {
   return (
     <div>
       <TopWrap />
+      <div>AdminHome</div>
       <LeftNav />
     </div>
   );

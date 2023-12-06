@@ -4,10 +4,15 @@ import ThumbBox from "../thumbBox/thumbBox";
 import Linechart from "../charts/lineChart";
 import DoughnutExample from "../charts/doughnut";
 import PieExample from "../charts/piechart";
+import NavBarHome from "../../../molecules/navbar/navbar";
 
-class HomeCopy extends React.Component {
-  render() {
-    return (
+export default function HomeCopy() {
+
+  return (
+    <>
+      <div className="">
+        <NavBarHome></NavBarHome>
+      </div>
       <div className="container-fluid">
         <div className="row">
           <div className="col-12">
@@ -20,8 +25,7 @@ class HomeCopy extends React.Component {
           </div>
         </div>
       </div>
-    );
-  }
+    </>
+  );
 }
 
-export default HomeCopy;

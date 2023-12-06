@@ -3,16 +3,15 @@ import { Table, Form } from "react-bootstrap";
 import "../../css/bootstrap.css";
 
 const EditUserForm = props => {
-  const [user, setUser] = useState(props.currentUser);
+  const [user, setUser] = useState(props.selectedUser);
 
   useEffect(() => {
-    setUser(props.currentUser);
-  }, [props]);
-  // You can tell React to skip applying an effect if certain values havenÃ¢ÂÂt changed between re-renders. [ props ]
+    setUser(props.selectedUser);
+  }, [props.selectedUser]);
+  
 
   const handleInputChange = event => {
     const { name, value } = event.target;
-
     setUser({ ...user, [name]: value });
   };
 
@@ -25,12 +24,12 @@ const EditUserForm = props => {
       }}
     >
       <Form.Group>
-        <Form.Label>Employee Id</Form.Label>
+        <Form.Label>username</Form.Label>
         <Form.Control
           type="number"
-          placeholder="Id"
-          name="iduser"
-          value={user.iduser}
+          placeholder="username"
+          name="username"
+          value={user.username || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -39,8 +38,8 @@ const EditUserForm = props => {
         <Form.Control
           type="text"
           placeholder="First Name"
-          name="fname"
-          value={user.fname}
+          name="firstname"
+          value={user.firstname || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -49,8 +48,8 @@ const EditUserForm = props => {
         <Form.Control
           type="text"
           placeholder="Last Name"
-          name="lname"
-          value={user.lname}
+          name="lastname"
+          value={user.lastname || ""}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -60,7 +59,7 @@ const EditUserForm = props => {
           type="text"
           placeholder="Enter email"
           name="email"
-          value={user.email}
+          value={user.email || ""}
           onChange={handleInputChange}
         />
       </Form.Group>

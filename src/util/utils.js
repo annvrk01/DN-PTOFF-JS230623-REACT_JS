@@ -1,10 +1,15 @@
 import md5 from "md5";
 import { salt, key_currentUser, key_usersDB, passwordRegex } from "./constants";
 import FakeData from "./FakeData";
+import cryptoRandomString from 'crypto-random-string';
 
 
 let hash = (content) => {
     return md5(salt + content);
+}
+
+let s = (any) => {
+    return JSON.stringify(any);
 }
 
 let toJson = (dataInJavascript) => {
@@ -81,6 +86,12 @@ class StringUtil {
 
         return firstLetterCapped + remainingLetters;
     }
+
+    static randomString(length = 10){
+        let randStr = cryptoRandomString({length: 10, type: 'base64'});
+        return randStr;
+    }
+    
 }
 
 class AccountUtil {
@@ -126,49 +137,6 @@ class AuthorUtil {
         return FakeData.fakeAuthors[id];
     }
 }
-class ProductUtil {
-
-    static selectProduct(productId) {
-        return FakeData.fakeProductDetailInfos[productId];
-    }
-
-    static selectCategory(categoryId) {
-        let allCategs = FakeData.fakeProductCategories;
-        let resultCategory = null;
-        // allCategs.every(
-        //     each => {
-        //         if(each.id = categoryId){
-        //             resultCategory = each;
-        //             return false;
-        //         }
-        //         return true;
-        //     }
-        // );
-        if (categoryId <= allCategs.length - 1) {
-            resultCategory = allCategs[categoryId];
-        }
-        return resultCategory;
-    }
-
-    static doesProductBelongToCategoryHierachy(topCategory, product, maxDepth = 4) {
-        let nextCateg = ProductUtil.selectCategory(product.categoryId);
-
-        let currentDepthCount = 1;
-        while (nextCateg != null) {
-            if (nextCateg.id === topCategory.id) {
-
-                return true;
-            }
-            nextCateg = ProductUtil.selectCategory(nextCateg.parent_category);
-            currentDepthCount++;
-            if (currentDepthCount > maxDepth) {
-                break;
-            }
-        }
-
-        return false;
-    }
-}
 
 class ArrayUtil {
     static removeItemFrom(item, array) {
@@ -200,8 +168,10 @@ export class AuthenResult {
             && !this.accountExisted;
     }
     isLoginPassed = () => {
-        return !this.isInvalidInput()
-            && this.accountExisted;
+        return this.accountExisted;
+        
+        //return !this.isInvalidInput()
+        //    && this.accountExisted;
     }
 }
 
@@ -230,7 +200,7 @@ export {
     hash, arrayFromHTMLCollection, cloneDOM,
     convertToDate, fromJson, getCurrentUser,
     removeFromStorage, save, toJson,
-    fixUpId, AccountUtil, ArrayUtil, AuthorUtil, ProductUtil, StringUtil,
+    fixUpId, AccountUtil, ArrayUtil, AuthorUtil,  StringUtil,
     isUndefined, isFunction,
-    reloadPage
+    reloadPage, s
 }

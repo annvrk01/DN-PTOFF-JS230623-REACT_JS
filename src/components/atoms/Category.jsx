@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import FakeData from "../../util/FakeData";
 import ExampleBlock from "./ExampleBlock";
-import { ProductUtil } from "../../util/utils";
+import ProductUtil from "../../util/ProductUtil";
 
 export default function Category(props) {
   const {eachCateg} = props; 

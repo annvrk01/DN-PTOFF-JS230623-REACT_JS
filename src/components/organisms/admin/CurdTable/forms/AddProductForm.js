@@ -2,43 +2,43 @@ import React, { useState } from "react";
 import { Table, Form } from "react-bootstrap";
 import "../../css/bootstrap.css";
 
-const AddUserForm = props => {
+const AddProductForm = props => {
 
   const initialFormState = {
-    username: "",
+    productname: "",
     firstname: "",
     lastname: "",
     email: ""
   };
 
-  const [user, setUser] = useState(initialFormState);
+  const [product, setProduct] = useState(initialFormState);
 
   const handleInputChange = event => {
     const { name, value } = event.target;
     console.log('handleInputChange, name = ' + name + ', value = ', value);
-    setUser({ ...user, [name]: value });
+    setProduct({ ...product, [name]: value });
   };
 
   return (
     <form
       onSubmit={event => {
         event.preventDefault();
-        if (!user.username || !user.firstname || !user.lastname || !user.email){
-          console.log('some thing was null, empty, equal 0 or undefined !', user);
+        if (!product.productname || !product.firstname || !product.lastname || !product.email){
+          console.log('some thing was null, empty, equal 0 or undefined !', product);
           return;
         }
 
-        props.addUser(user);
-        setUser(initialFormState);
+        props.addProduct(product);
+        setProduct(initialFormState);
       }}
     >
       <Form.Group>
-        <Form.Label>Username</Form.Label>
+        <Form.Label>Productname</Form.Label>
         <Form.Control
           type="text"
-          placeholder="username"
-          name="username"
-          value={user.username}
+          placeholder="productname"
+          name="productname"
+          value={product.productname}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -48,7 +48,7 @@ const AddUserForm = props => {
           type="text"
           placeholder="First Name"
           name="firstname"
-          value={user.firstname}
+          value={product.firstname}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -58,7 +58,7 @@ const AddUserForm = props => {
           type="text"
           placeholder="Last Name"
           name="lastname"
-          value={user.lastname}
+          value={product.lastname}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -68,14 +68,14 @@ const AddUserForm = props => {
           type="text"
           placeholder="Enter email"
           name="email"
-          value={user.email}
+          value={product.email}
           onChange={handleInputChange}
         />
       </Form.Group>
 
-      <button className="btn btn-primary">Add new user</button>
+      <button className="btn btn-primary">Add new product</button>
     </form>
   );
 };
 
-export default AddUserForm;
+export default AddProductForm;

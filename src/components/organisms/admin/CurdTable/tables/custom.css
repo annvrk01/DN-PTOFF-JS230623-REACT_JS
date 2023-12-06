@@ -6,3 +6,111 @@
   border: none;
   background: url(./trash.png) top left no-repeat;
 }
+
+.length_filter_group{
+  position: relative;
+}
+
+.dataTables_length{
+  float:left;
+}
+
+.dataTables_filter{
+  float:right;
+}
+
+.dataTables_filter input{
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: transparent;
+  color: inherit;
+  margin-left: 3px;
+  outline-offset: 0px;
+}
+
+.table-bordered thead th{
+  position: relative;
+  padding-right: 26px;
+
+  /* pointer-events: none; */
+}
+
+.table-bordered thead th.sortTrigger::before,
+.table-bordered thead th.sortTrigger::after{
+  position: absolute;
+  display: block;
+  opacity: .125;
+  right: 10px;
+  line-height: 9px;
+  font-size: .8em;
+}
+
+.table-bordered thead th.sortTrigger::before{
+  bottom: 50%;
+  content: "▲"/"";
+
+  /* pointer-events: auto; */
+}
+
+.table-bordered thead th.sortTrigger::after{
+  top: 50%;
+  content: "▼"/"";
+
+  /* pointer-events: auto; */
+}
+
+
+
+
+
+.navigation{
+  margin-top: 35px;
+  margin-bottom: 15px;
+}
+
+.navigation ul {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  list-style-type: none;
+  padding: 0 5rem;
+}
+
+
+.navigation li a {
+  border-radius: 7px;
+  padding: 0.1rem 1rem;
+  cursor: pointer;
+}
+
+.navigation li.selected a{
+  background-color: #3f84fb;
+  border: gray 1px solid;
+}
+
+.navigation  li a:hover:not(.active) {background-color: #ddd;}
+
+.navigation li.previous a,
+.navigation li.next a,
+.navigation li.break a {
+  background-color: white;
+  border-color: transparent;
+}
+
+.navigation li.active a {
+  background-color: #0366d6;
+  border-color: transparent;
+  color: white;
+  min-width: 32px;
+}
+
+.navigation li.disabled a {
+  color: grey;
+}
+
+.navigation li.disable,
+.navigation li.disabled a {
+  cursor: default;
+}
