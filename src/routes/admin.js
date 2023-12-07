@@ -15,6 +15,7 @@ import assisticon from "./CustAssist_n.png";
 import searchicon from "./magnifying-glass-2.png";
 import addUsericon from "./user.png";
 import Chart from 'chart.js/auto';
+import CartManagement from "../components/organisms/admin/CurdTable/cartManagement";
 
 function RoutesForAdmin() {
   return (
@@ -26,6 +27,7 @@ function RoutesForAdmin() {
       <Route path="/admin/Search" element={<Search />} />
       <Route path="/admin/AddUser" element={<UserManagement />} />
       <Route path="/admin/AddProduct" element={<ProductManagement />} />
+      <Route path="/admin/AddCart" element={<CartManagement />} />
     </Routes>
   );
 }

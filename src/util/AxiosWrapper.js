@@ -4,6 +4,7 @@ import { URL_SERVER } from "./constants";
 class RequestBuilder{
   method;
   #url;
+  #header;
   #body;
   #params;
 
@@ -69,6 +70,14 @@ class RequestBuilder{
   /***
    * @returns {RequestBuilder}
    */
+  header(header){
+    this.#header = header;
+    return this;
+  }
+
+  /***
+   * @returns {RequestBuilder}
+   */
   body(data){
     this.#body = data;
     return this;
@@ -92,27 +101,31 @@ class RequestBuilder{
     return this;
   }
 
-  send(){    
+  send(){        
+    let paramObj = {}
+
+    if(this.#params){
+      paramObj.params = this.#params;
+    }
+    if(this.#header){
+      paramObj.header = this.#header;
+    }
+
     if(this.method === "get"){
       console.log("sending, params = " + JSON.stringify(this.#params) + ", body = " + JSON.stringify(this.#body));
       return axios.get(
         this.#url, 
-        {
-          params: this.#params
-        })
+        paramObj)
         .then( this.callbackOnSuccess )
         .catch( this.callbackOnFailure );
     }
 
     return axios[this.method](
       this.#url, 
-      this.#body,
-      {
-        params: this.#params
-      })
+      this.#body, 
+        paramObj)
       .then( this.callbackOnSuccess )
       .catch( this.callbackOnFailure );
-    
   }
 }
 

@@ -43,6 +43,7 @@ function NavBarHome() {
               <Nav.Link as={Link} to='/admin/Search'>Search</Nav.Link>
               <Nav.Link as={Link} to='/admin/AddUser' onClick={validateDidLogin}>User management</Nav.Link>
               <Nav.Link as={Link} to='/admin/AddProduct' onClick={validateDidLogin}>Product management</Nav.Link>
+              <Nav.Link as={Link} to='/admin/AddCart' onClick={validateDidLogin}>Cart management</Nav.Link>              
             </Nav>
           </Navbar.Collapse>
 

@@ -12,7 +12,7 @@ const SORT_BY = {
   DES : "des"
 }
 
-const ProductTable = props => {
+const CartTable = props => {
   const [sortOrder, setSortOrder] = useState(SORT_BY.ASC);
 
   const inputSearchKey = useRef();
@@ -20,7 +20,7 @@ const ProductTable = props => {
   const handlePageClick = (event) => {
     let pageIndex = event.selected + 1;
     console.log(
-      `Product requested page number ${pageIndex}`
+      `Cart requested page number ${pageIndex}`
     );
     props.handleNewPageIndex(pageIndex);
   };
@@ -77,73 +77,76 @@ const ProductTable = props => {
           <tr>
             <th className="sortTrigger" onClick={(event) => {
               //console.log("event ", event)
-              props.setSortBy("title_text");
+              props.setSortBy("id");
               changeSortOrder();
             }}>
-              Title text
+              CART ID
             </th>
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("desc_text");
+              props.setSortBy("username");
               changeSortOrder();
             }}>
-              Description
+              CUSTOMER NAME
             </th>
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("price");
+              props.setSortBy("totalprice");
               changeSortOrder();
             }}>
-              Price
+              TOTAL PRICE
             </th>
+            
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("geometry");
-              changeSortOrder();
+              //...
             }}>
-              Geometry info
+              PRODUCT IDS
             </th>
+
+            
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("likes_count");
-              changeSortOrder();
+              //...
             }}>
-              Likes count
+              PRODUCT NAMES
             </th>
+            
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("visit_count");
+              props.setSortBy("date_added");
               changeSortOrder();
             }}>
-              Visit count
+              DATE ADDED
             </th>
+            
             <th className="sortTrigger" onClick={(event) => {
-              props.setSortBy("download_count");
+              props.setSortBy("date_updated");
               changeSortOrder();
             }}>
-              Download count
+              DATE UPDATED
             </th>
 
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {props.products.length > 0 ? (
-            props.products.map((product, idx) => (
+          {props.carts.length > 0 ? (
+            props.carts.map((cart, idx) => (
               <tr key={idx}>
-                <td>{product.title_text}</td>
-                <td>{parse((product.desc_text + "") || "")}</td>
-                <td>{product.price}</td>
-                <td>{product.geometry}</td>
-                <td>{product.likes_count}</td>
-                <td>{product.visit_count}</td>
-                <td>{product.download_count}</td>
+                <td>{cart.id}</td>
+                <td>{cart.username}</td>
+                <td>{(cart.totalprice || "0") + " $" }</td>
+                <td>{cart.productids}</td>
+                <td>{cart.productnames}</td>
+                <td>{cart.date_added?.split("T").join()}</td>
+                <td>{cart.date_updated}</td>
                 <td>
                   <button
                     onClick={() => {
-                      props.editRow(product);
+                      props.editRow(cart);
                     }}
                     className="edit"
                   >
                     <img src={editicon} />
                   </button>
                   <button
-                    onClick={() => props.deleteProduct(product.id)}
+                    onClick={() => props.deleteCart(cart.id)}
                     className="delete"
                   >
                     <img src={trashicon} />
@@ -154,7 +157,7 @@ const ProductTable = props => {
           ) : (
             <tr>
               <td colSpan={5} className="text-center">
-                No products
+                No carts
               </td>
             </tr>
           )}
@@ -176,4 +179,4 @@ const ProductTable = props => {
   )
 };
 
-export default ProductTable;
+export default CartTable;

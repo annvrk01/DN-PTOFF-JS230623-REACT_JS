@@ -2,130 +2,201 @@ import { hadLoggedIn } from "./Authen";
 import FakeData from "./FakeData";
 import { key_cart } from "./constants";
 import { getCurrentUser, AccountUtil, load, save, ArrayUtil } from "./utils";
+import RequestBuilder from "./AxiosWrapper";
 
 export default class CartUtil {
 
     static getLoggedInUserCart() {
-        if (hadLoggedIn() === false) {
-            return null;
-        }
-
-        let user = getCurrentUser();
-        user = AccountUtil.select(user.id);
-        if (user == null) {
-            console.error("no user with id ", user.id);
-            return null;
-        }
-        let userCart = null;
-
-        let needToCreateCartForCurrentUser = !("cartId" in user) || CartUtil.select(user.cartId) == null;
-
-        if (needToCreateCartForCurrentUser) {
-            userCart = CartUtil.createNewCart();
-            user.cartId = userCart.id;
-
-            //save cart into this user object in userDB
-            AccountUtil.saveUser(user);
-        } else {
-            userCart = CartUtil.select(user.cartId);
-        }
-        return userCart;
-    }
-    static selectAll() {
-        let cartDB = load(key_cart);
-        if(!cartDB){
-            save(key_cart, FakeData.fakeUserCart);
-            cartDB = load(key_cart);
-        }
-        return cartDB;
+        console.error("unimplemented")
     }
     static select(id) {
-        let cartDB = CartUtil.selectAll();
-
-        if (id < 0 || id >= cartDB.length) {
-            return null;
-        }
-        return cartDB[id];
+        console.error("unimplemented")
     }
 
     static createNewCart() {
-        let cartDB = CartUtil.selectAll();
-        let nextId = cartDB.length;
-        let newCart = {
-            id: nextId,
-            cartItems: []
-        };
-        cartDB.push(newCart);
-
-        save(key_cart, cartDB);
-        return newCart;
+        console.error("unimplemented")
     }
 
     static addToCart(cart, product) {
-        let accepted = false;
-        if (!cart) return false;
-
-        if (!Array.isArray(product)) {
-            product = [product];
-        }
-        product.forEach(
-            eachProduct => {
-                let cartItem = CartUtil.findCartItemWithProduct(eachProduct, cart);
-                //console.log('findCartItemWithProduct', product, cart, "cartItem", cartItem);
-                if (cartItem) {
-                    accepted = false;
-                    //do nothing, no such thing as purchasing a single 3d-product multiple times                 
-                }
-                else {
-                    cart.cartItems.push(
-                        {
-                            productId: eachProduct.id,
-                        }
-                    );
-                    accepted = true;
-                }
-            }
-        );
-
-        this.saveCart(cart);
-        return accepted;
+        console.error("unimplemented")
+        return;
     }
-    static findCartItemWithProduct(product, cart) {
-        if (!cart || !product) return null;
-        if (!('cartItems' in cart)) return null;
-        if (!(cart.cartItems) || cart.cartItems.length === 0) return null;
-
-        let foundCartItem = null;
-        cart.cartItems.every(
-            eachCartItem => {
-                if (!('productId' in eachCartItem)) {
-                    return true; //continue loop
-                }
-                else if (eachCartItem.productId === product.id) {
-                    foundCartItem = eachCartItem;
-                    return false; // break loop
-                }
-                return true;
-            }
-        );
-        return foundCartItem;
-    }
-    static saveCart(cart) {
-        let cartDB = CartUtil.selectAll();
-
-        if (cartDB.length <= cart.id) {
-            return false;
-        }
-
-        cartDB[cart.id] = cart;
-        save(key_cart, cartDB);
+    static findCartItemWithCart(cart, cartItem) {
+        
+        console.error("unimplemented")
     }
 
     static removeItemFromCart(cartItem, cartId) {
-        let foundCart = this.select(cartId);
-        if (foundCart) {
-            ArrayUtil.removeItemFrom(cartItem, foundCart.cartItems);
+        console.error("unimplemented")
+    }
+
+    
+    static async deleteCart(params) {
+        let cart = {};
+        if (!isNaN(Number(params)))
+            cart.id = params;
+        else {
+            if (params.id === undefined) {
+                cart.id = params.id;
+            }
         }
-        this.saveCart(foundCart);
+
+        let _response = null;
+        await RequestBuilder.del().url("carts/" + cart.id)
+            .onSuccess(
+                (response) => {
+                    console.log("response ", response);
+                    _response = response
+                }
+            )
+            .send();
+        return _response;
+    }
+
+    static async updateCart(cart) {
+        let _response = null;
+        await RequestBuilder.put().url("carts/" + cart.id)
+            .body(cart)
+            .onSuccess(
+                (response) => {
+                    console.log("response ", response);
+                    _response = response
+                }
+            )
+            .send();
+        return _response;
+    }
+
+    static async addCartImg(cart) {
+        if (!cart.imgs || cart.imgs.length < 1) {
+            console.log("missing imgs to send", cart);
+            return;
+        }
+
+        let _response = null;
+        let formData = new FormData();
+        cart.imgs.forEach(
+            (img, idx) => {
+                console.log("append img: ", img);
+                formData.append("cartImage", img);
+                //formData.append("img-" + idx, img);
+            }
+        );
+
+        console.log("sending addCartImg, formData = ", formData);
+        // await RequestBuilder.post().url("carts/images")
+        // .header({ headers: { 'Content-Type': 'multipart/form-data' }})
+        // .body(formData)
+        // .onSuccess( 
+        //     (response) => {
+        //         console.log("response upload images: ", response);
+        //         _response = response
+        //     }
+        // )
+        // .send(); 
+
+        let fd = new FormData();
+        fd.append('cartImage', cart.imgs[0]);
+        console.log('fd', fd);
+        axios({
+            method: 'post',
+            url: 'http://localhost:8000/api/carts/images',
+            data: fd,
+        })
+            .then((response) => {
+                if (response.data == 'Success') {
+                    alert('Test has been Added..!!');
+                }
+                else {
+                    alert('Something went wrong');
+                    this.setState({ category: '' });
+                }
+                // this.setState({success:'Alert: '+response.data});
+            })
+            .catch((e) => {
+                console.error(e);
+                this.setState({ success: 'Alert: Something went wrong' });
+            });
+    }
+
+    static async addCart(cart) {
+        let _response = null;
+        await RequestBuilder.post().url("carts/")
+            .body(cart)
+            .onSuccess(
+                (response) => {
+                    console.log("response addCart: ", response);
+                    _response = response;
+                    this.addCartImg(cart);
+                }
+            )
+            .send();
+        return _response;
+    }
+
+    /***
+     * @deprecated
+     * This async (like all async) returns a promise 
+     * whose resolve param is 'carts'
+     * Call getAllCarts().then(carts => {...}) to access the desired 'carts' result
+     * @returns {Promise} 
+     */
+    static async getAllCarts() {
+        // let carts = load(key_cartsDB);
+        // if(!carts || carts.length === 0){
+        //     this.#createFakeCartDB();
+        //     carts = load(key_cartsDB);
+        // }
+
+        let carts = null;
+        await RequestBuilder.get().url("carts/")
+            .onSuccess(
+                (response) => {
+                    console.log("response ", response);
+                    carts = response.data.content;
+                }
+            )
+            .send();
+        return carts;
+    }
+
+    /**
+     * 
+     * @param {string} key 
+     * @param {number} page 
+     * @param {number} size 
+     * @param {string} sortOrder in ['asc', 'des']
+     * @param {string} sortBy 
+     * @returns {Promise}
+     */
+    static async getCartPaging(key, page, size, sortOrder, sortBy) {
+        // key = key || "";
+        // page = page || 1; 
+        // size = size || this.DEFAULT_PAGE_SIZE; 
+        sortOrder = sortOrder || "asc";
+        sortBy = sortBy || "title_text";
+
+        let result = null;
+        await RequestBuilder.get().url("carts/")
+            .params({
+                key: key || "",
+                page: page || 1,
+                size: size || this.DEFAULT_PAGE_SIZE,
+                sort: sortOrder + "," + sortBy
+            })
+            .onSuccess(
+                (response) => {
+                    console.log("response ", response);
+                    result = response.data;
+                }
+            )
+            .onFailure(
+                (err) => {
+                    console.log("getCartPaging failed, err = ", err);
+                    result = err;
+                }
+            )
+            .send();
+        return result;
     }
 }

@@ -13,9 +13,9 @@ const initialFormState = {
 
 const maxImageCount = 100;
 
-const AddProductForm = props => {
+const AddCartForm = props => {
   const [images, setImages] = React.useState([]);
-  const [product, setProduct] = useState(initialFormState);
+  const [cart, setCart] = useState(initialFormState);
 
   const onImgChange = (imageList, addUpdateIndex) => {
 
@@ -23,44 +23,44 @@ const AddProductForm = props => {
     //console.log("addUpdateIndex", addUpdateIndex);
     setImages(imageList);
 
-    console.log("attaching imgs to product: " ,imageList);
-    product.imgs = imageList;
-    setProduct(product);
+    console.log("attaching imgs to cart: " ,imageList);
+    cart.imgs = imageList;
+    setCart(cart);
   };
 
   // useState(
   //   () => {
   //     console.log("useState images NOT WORKING");
-  //     if (!product) return;
+  //     if (!cart) return;
   //   }, [images]
   // );
 
 
   const handleInputChange = event => {
     const { name, value } = event.target;
-    setProduct({ ...product, [name]: value });
+    setCart({ ...cart, [name]: value });
   };
 
   return (
     <form
       onSubmit={event => {
         event.preventDefault();
-        if (!product.title_text || !product.desc_text || product.price < 0) {
-          console.log('some thing was null, empty, less than 0 or undefined !', product);
+        if (!cart.title_text || !cart.desc_text || cart.price < 0) {
+          console.log('some thing was null, empty, less than 0 or undefined !', cart);
           return;
         }
 
-        props.addProduct(product);
-        setProduct(initialFormState);
+        props.addCart(cart);
+        setCart(initialFormState);
       }}
     >
       <Form.Group>
-        <Form.Label>Productname</Form.Label>
+        <Form.Label>Cartname</Form.Label>
         <Form.Control
           type="text"
           placeholder="title text"
           name="title_text"
-          value={product.title_text}
+          value={cart.title_text}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -70,7 +70,7 @@ const AddProductForm = props => {
           type="text"
           placeholder="Description"
           name="desc_text"
-          value={product.desc_text}
+          value={cart.desc_text}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -80,7 +80,7 @@ const AddProductForm = props => {
           type="text"
           placeholder="0"
           name="price"
-          value={product.price}
+          value={cart.price}
           onChange={handleInputChange}
         />
       </Form.Group>
@@ -90,13 +90,13 @@ const AddProductForm = props => {
           type="text"
           placeholder="Enter geometry info"
           name="geometry"
-          value={product.geometry}
+          value={cart.geometry}
           onChange={handleInputChange}
         />
       </Form.Group>
 
 
-      <Form.Label>Product image</Form.Label>
+      <Form.Label>Cart image</Form.Label>
       <ImageUploading
         multiple
         value={images}
@@ -141,9 +141,9 @@ const AddProductForm = props => {
           </div>
         )}
       </ImageUploading>
-      <button type="submit" className="btn btn-primary">Add new product</button>
+      <button type="submit" className="btn btn-primary">Add new cart</button>
     </form>
   );
 };
 
-export default AddProductForm;
+export default AddCartForm;

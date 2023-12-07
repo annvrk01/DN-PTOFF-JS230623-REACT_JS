@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { s } from "../../../../util/utils";
 
 const initialFormState = {
-  id: null,
+  id: -1,
   title_text: "",
   desc_text: "",
   price: "",
@@ -70,7 +70,7 @@ export default function ProductManagement() {
 
 
   const addProduct = product => {
-    product.id = products.length + 1;
+    console.log("addproduct", product);
     ProductUtil.addProduct(product).then(
       (product) => {        
         setProducts([...products, product]);
