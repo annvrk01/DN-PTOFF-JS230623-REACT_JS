@@ -89,9 +89,11 @@ export default function ProductManagement() {
 
 
   const addProduct = product => {
-    console.log("addproduct", product);
+    console.log("try adding product...", product);
     ProductUtil.addProduct(product).then(
       (product) => {
+        
+        alert("Adding product success");
         setProducts([...products, product]);
         pagingProduct();
       }

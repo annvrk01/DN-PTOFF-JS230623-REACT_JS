@@ -166,7 +166,11 @@ const ProductTable = (props) => {
             props.products.map((product, idx) => (
               <tr key={idx}>
                 <td>{product.title_text}</td>
-                <td>{parse(product.desc_text + "" || "")}</td>
+                <td>{
+                  (!product.desc_text)
+                  ? ""
+                  : parse(product.desc_text + "")
+                }</td>
                 <td>
                   {
                     props.categories?.find(

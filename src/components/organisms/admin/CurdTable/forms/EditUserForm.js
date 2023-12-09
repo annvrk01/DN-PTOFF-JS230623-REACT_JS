@@ -26,7 +26,7 @@ const EditUserForm = props => {
       <Form.Group>
         <Form.Label>username</Form.Label>
         <Form.Control
-          type="number"
+          type="text"
           placeholder="username"
           name="username"
           value={user.username || ""}

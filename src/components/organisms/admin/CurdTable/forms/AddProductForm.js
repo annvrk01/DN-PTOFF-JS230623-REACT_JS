@@ -23,7 +23,7 @@ const AddProductForm = (props) => {
 
   useEffect(
     () => {
-      console.log("props.categories changed", props);
+      //console.log("props.categories changed", props);
       if(!props.categories) return;
       setShowingCategories(cloneObj(props.categories));
     }

@@ -396,7 +396,9 @@ export default function ProductDetail() {
                                             <div className="username-container">
                                                 <span className="submitted-by">Submitted by</span>
                                                 <a rel="nofollow" href="https://free3d.com/user/3dhaupt" className="username"
-                                                    id="author-username">{AuthorUtil.select(product.authorId).username}</a>
+                                                    id="author-username">{
+                                                        AuthorUtil.select(product.authorId)?.username || "not-implemented"
+                                                    }</a>
                                             </div>
                                         </div>
                                     </div>

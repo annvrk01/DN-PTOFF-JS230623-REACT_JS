@@ -14,7 +14,7 @@ export default function Category(props) {
     ProductUtil.getCachedProducts()
     .then(
       (productDetailInfos) => {
-        console.error("productDetailInfos is ", productDetailInfos);
+        //console.error("productDetailInfos is ", productDetailInfos);
         if(!productDetailInfos){
           console.error("failed getting cached products", productDetailInfos);
           return;

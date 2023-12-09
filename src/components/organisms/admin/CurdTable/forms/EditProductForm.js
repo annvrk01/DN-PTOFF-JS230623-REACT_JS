@@ -24,12 +24,12 @@ const EditProductForm = props => {
       }}
     >
       <Form.Group>
-        <Form.Label>productname</Form.Label>
+        <Form.Label>Productname</Form.Label>
         <Form.Control
-          type="number"
-          placeholder="title_text"
+          type="text"
+          placeholder="title text"
           name="title_text"
-          value={product.title_text || ""}
+          value={product.title_text}
           onChange={handleInputChange}
         />
       </Form.Group>
