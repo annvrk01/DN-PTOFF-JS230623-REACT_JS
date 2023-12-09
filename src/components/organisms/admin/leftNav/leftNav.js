@@ -17,7 +17,6 @@ import searchicon from "./magnifying-glass-2.png";
 import addUsericon from "./user.png";
 import Chart from 'chart.js/auto';
 import "@trendmicro/react-sidenav/dist/react-sidenav.css";
-import ProductDetail from "../../product-detail";
 
 export default function LeftNav() {
   const reactLocation = useLocation();

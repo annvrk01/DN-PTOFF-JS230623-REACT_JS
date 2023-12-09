@@ -10,23 +10,29 @@ export default function Category(props) {
   useEffect(() => {
     if(!eachCateg) return;
     let showingItems = [];
-    let productDetailInfos = ProductUtil.getCachedProducts();
-    if(!productDetailInfos){
-      console.error("failed getting cached products", productDetailInfos);
-      return;
-    }
-    productDetailInfos.forEach((eachProduct) => {
-      if (
-        ProductUtil.doesProductBelongToCategoryHierachy(
-          eachCateg,
-          eachProduct
-        ) === false
-      )
-        return; //meaning to continue forEach
 
-      showingItems.push(eachProduct);
-    });
-    setShowingItems(showingItems);
+    ProductUtil.getCachedProducts()
+    .then(
+      (productDetailInfos) => {
+        console.error("productDetailInfos is ", productDetailInfos);
+        if(!productDetailInfos){
+          console.error("failed getting cached products", productDetailInfos);
+          return;
+        }
+        productDetailInfos.forEach((eachProduct) => {
+          if (
+            ProductUtil.doesProductBelongToCategoryHierachy(
+              eachCateg,
+              eachProduct
+            ) === false
+          )
+            return; //meaning to continue forEach
+    
+          showingItems.push(eachProduct);
+        });
+        setShowingItems(showingItems);
+      }
+    )
 
   }, [eachCateg]);
 

@@ -8,6 +8,7 @@ import axios from "axios";
 export default class ProductUtil {
     static DEFAULT_PAGE_SIZE = 5;
     static _cachedProducts = null;
+    static _cachedCategories = null;
 
     static getStaticImageUrl(imgName){
         return "http://localhost:8000/static/productImage/" + imgName;
@@ -199,12 +200,34 @@ export default class ProductUtil {
             let bodyData = await this.getProductPaging("", 1, 10000, 'asc', 'title_text');
             this._cachedProducts = bodyData.content;
         }
+        console.log("this._cachedProducts = ", this._cachedProducts);
         return this._cachedProducts;
     }
 
-    static getCachedProducts(){
-        this.cacheProducts();
-        return this._cachedProducts;
+    static async getCachedProducts(){
+        let result;
+        await this.cacheProducts()
+        .then(
+            () => {
+                result = this._cachedProducts;
+            }
+        );
+        return result;
+    }
+    
+    static async getAllCategories(){        
+        let allCategs = null;
+        await RequestBuilder.get()
+            .url("products/category/")
+            .onSuccess(
+                (response) => {
+                    console.log("response getAllCategories ", response);
+                    allCategs = response.data.categories;
+                }
+            )
+            .send();
+        this._cachedCategories = allCategs;    
+        return allCategs;
     }
     
 
@@ -234,7 +257,7 @@ export default class ProductUtil {
             })
             .onSuccess(
                 (response) => {
-                    console.log("response ", response);
+                    console.log("response getProductPaging ", response);
                     result = response.data;
                 }
             )

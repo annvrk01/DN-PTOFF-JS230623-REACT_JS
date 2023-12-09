@@ -5,12 +5,13 @@ import ProductTable from "./tables/ProductTable";
 import { Table, Card } from "react-bootstrap";
 import ProductUtil from "../../../../util/ProductUtil";
 import { useEffect } from "react";
-import { s } from "../../../../util/utils";
+import { cloneObj, s } from "../../../../util/utils";
 
 const initialFormState = {
   id: -1,
   title_text: "",
   desc_text: "",
+  categoryId: 1,
   price: "",
   geometry: "",
 };
@@ -24,7 +25,25 @@ export default function ProductManagement() {
 
   const [pageSize, setPageSize] = useState(ProductUtil.DEFAULT_PAGE_SIZE);
   const [pageCount, setPageCount] = useState(1);
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+
+  useEffect(
+    () => {
+      const fetchData = async () => {
+        let newCategories = await ProductUtil.getAllCategories();
+        console.log("getAllCategories ", newCategories);
+        setCategories(newCategories);
+        return newCategories;
+      }
+      fetchData()
+        .catch(console.error);
+    }
+    , [])
+
+
   const [selectedProduct, setSelectedProduct] = useState(initialFormState);
   const [editing, setEditing] = useState(false);
 
@@ -33,46 +52,46 @@ export default function ProductManagement() {
     //console.log("got products:", products);
 
     let fillCountToMatchPageSize = pageSize - products.length;
-    while(fillCountToMatchPageSize > 0){
+    while (fillCountToMatchPageSize > 0) {
       products.push({});
       fillCountToMatchPageSize--;
-    }    
+    }
     setProducts(products);
 
     let pageCount = responseData.totalPages;
     //console.log("pageCount = ", pageCount);
     setPageCount(pageCount);
-  }   
+  }
 
   const handleNewPageIndex = (newPageIndex) => {
     setPageIndex(newPageIndex);
   }
   const pagingProduct = () => {
-    ProductUtil.getProductPaging(      
+    ProductUtil.getProductPaging(
       searchKey,
-      pageIndex, 
-      pageSize, 
-      sortOrder, 
+      pageIndex,
+      pageSize,
+      sortOrder,
       sortBy
     )
-    .then(
-      (responseData) => {
-        handleGetProduct(responseData);
-      }
-    );
+      .then(
+        (responseData) => {
+          handleGetProduct(responseData);
+        }
+      );
   }
 
   useEffect(
     () => {
       pagingProduct();
     }, [searchKey, pageIndex, pageSize, sortOrder, sortBy]);
-    
+
 
 
   const addProduct = product => {
     console.log("addproduct", product);
     ProductUtil.addProduct(product).then(
-      (product) => {        
+      (product) => {
         setProducts([...products, product]);
         pagingProduct();
       }
@@ -83,7 +102,7 @@ export default function ProductManagement() {
     setEditing(false);
 
     ProductUtil.deleteProduct(id).then(
-      (response) => {   
+      (response) => {
         //setProducts(products.filter(product => product.id !== id));
         pagingProduct();
       }
@@ -94,10 +113,10 @@ export default function ProductManagement() {
     setEditing(false);
 
     ProductUtil.updateProduct(product).then(
-      (response) => {   
-        let foundProductAt = products.findIndex( product => product.id === response.data.id );   
+      (response) => {
+        let foundProductAt = products.findIndex(product => product.id === response.data.id);
         console.log("UPDATE PRODUCT SUCCEED, update at index " + foundProductAt)
-        products[foundProductAt] = response.data;  
+        products[foundProductAt] = response.data;
         setProducts([...products]);
       }
     )
@@ -129,30 +148,40 @@ export default function ProductManagement() {
                   setEditing={setEditing}
                   selectedProduct={selectedProduct}
                   updateProduct={updateProduct}
+
+                  categories={categories}
+                  setCategories={setCategories}
                 />
               </Fragment>
             ) : (
               <Fragment>
                 <h5>Add product</h5>
-                <AddProductForm addProduct={addProduct} />
+                <AddProductForm
+                  addProduct={addProduct}
+
+                  categories={categories}
+                  setCategories={setCategories} />
               </Fragment>
             )}
           </Card>
         </div>
         <div className="col-12">
           <h5>View products</h5>
-          <ProductTable 
-            products={products} editRow={editRow} deleteProduct={deleteProduct} 
+          <ProductTable
+            products={products} editRow={editRow} deleteProduct={deleteProduct}
             handleNewPageIndex={
               (newPageIndex) => {
                 handleNewPageIndex(newPageIndex);
-            }}
+              }}
             pageCount={pageCount}
-            pageSize={pageSize} 
+            pageSize={pageSize}
             setPageSize={setPageSize}
-            setSearchKey = {setSearchKey}
-            setSortOrder = {setSortOrder}
-            setSortBy = {setSortBy}
+            setSearchKey={setSearchKey}
+            setSortOrder={setSortOrder}
+            setSortBy={setSortBy}
+
+            categories={categories}
+            setCategories={setCategories}
           />
         </div>
       </div>

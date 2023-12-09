@@ -196,8 +196,12 @@ let isFunction = (any) => {
     return true;
 }
 
+let cloneObj = (obj) => {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 export {
-    hash, arrayFromHTMLCollection, cloneDOM,
+    hash, arrayFromHTMLCollection, cloneDOM, cloneObj,
     convertToDate, fromJson, getCurrentUser,
     removeFromStorage, save, toJson,
     fixUpId, AccountUtil, ArrayUtil, AuthorUtil,  StringUtil,
