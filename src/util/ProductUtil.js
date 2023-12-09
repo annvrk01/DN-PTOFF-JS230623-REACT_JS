@@ -7,9 +7,37 @@ import axios from "axios";
 
 export default class ProductUtil {
     static DEFAULT_PAGE_SIZE = 5;
+    static _cachedProducts = null;
 
-    static selectProduct(productId) {
-        return FakeData.fakeProductDetailInfos[productId];
+    static getStaticImageUrl(imgName){
+        return "http://localhost:8000/static/productImage/" + imgName;
+    }
+
+    static async getProduct(productId) {    
+        if(isNaN(Number(productId))){
+            console.log("expect productId to be a number, got ", productId);
+            return null;
+        }    
+        let product = null;
+        await RequestBuilder.get()
+        .url("products/" + productId)
+        .onSuccess(
+            (response) => {
+                console.log("response getProduct ", response);
+                product = response.data.product;
+            }
+        )
+        .send();
+        
+        if(product.imgs){
+            product.imgs.forEach(
+                img => {
+                    let imgSrc = this.getStaticImageUrl(img.name);
+                    img.src = imgSrc;
+                }
+            );
+        }
+        return product;
     }
 
     static selectCategory(categoryId) {
@@ -40,10 +68,6 @@ export default class ProductUtil {
         return false;
     }
 
-    static async #cacheProduct(product) {
-        save(key_currentProduct)
-    }
-
     static async deleteProduct(params) {
         let product = {};
         if (!isNaN(Number(params)))
@@ -58,7 +82,7 @@ export default class ProductUtil {
         await RequestBuilder.del().url("products/" + product.id)
             .onSuccess(
                 (response) => {
-                    console.log("response ", response);
+                    console.log("response delete product ", response);
                     _response = response
                 }
             )
@@ -72,8 +96,36 @@ export default class ProductUtil {
             .body(product)
             .onSuccess(
                 (response) => {
-                    console.log("response ", response);
+                    console.log("response update product ", response);
                     _response = response
+                }
+            )
+            .send();
+        return _response;
+    }
+
+    static async getBaseCategory(){
+        let allBaseCategs = null;
+        await RequestBuilder.get()
+            .url("products/base-category/")
+            .onSuccess(
+                (response) => {
+                    console.log("response getBaseCategory ", response);
+                    allBaseCategs = response.data.baseCategories;
+                }
+            )
+            .send();
+        return allBaseCategs;
+    }
+
+    static async getImages(product){
+        let _response = null;
+        await RequestBuilder.get().url("products/images/" + product.id)
+            .body(product)
+            .onSuccess(
+                (response) => {
+                    console.log("response get images ", response);
+                    _response = response.data.imgs;
                 }
             )
             .send();
@@ -87,6 +139,23 @@ export default class ProductUtil {
         }
 
         let _response = null;
+
+        await RequestBuilder.post().url("products/images")
+        .body({
+            productId: product.id,
+            images: product.imgs
+        })
+        .onSuccess( 
+            (response) => {
+                console.log("response upload images: ", response);
+                _response = response
+            }
+        )
+        .send(); 
+        return;
+        
+        //TODO: ???
+        
         let formData = new FormData();
         product.imgs.forEach(
             (img, idx) => {
@@ -97,17 +166,6 @@ export default class ProductUtil {
         );
 
         console.log("sending addProductImg, formData = ", formData);
-        // await RequestBuilder.post().url("products/images")
-        // .header({ headers: { 'Content-Type': 'multipart/form-data' }})
-        // .body(formData)
-        // .onSuccess( 
-        //     (response) => {
-        //         console.log("response upload images: ", response);
-        //         _response = response
-        //     }
-        // )
-        // .send(); 
-
         let formdata = new FormData();
         formdata.append('productImage', product.imgs[0]);
     
@@ -119,29 +177,6 @@ export default class ProductUtil {
         }).catch(err => {
           console.log("error ", err)
         })
-
-        // let fd = new FormData();
-        // fd.append('productImage', product.imgs[0]);
-        // console.log('fd', fd);
-        // axios({
-        //     method: 'post',
-        //     url: 'http://localhost:8000/api/products/images',
-        //     data: fd,
-        // })
-        //     .then((response) => {
-        //         if (response.data == 'Success') {
-        //             alert('Test has been Added..!!');
-        //         }
-        //         else {
-        //             alert('Something went wrong');
-        //             this.setState({ category: '' });
-        //         }
-        //         // this.setState({success:'Alert: '+response.data});
-        //     })
-        //     .catch((e) => {
-        //         console.error(e);
-        //         this.setState({ success: 'Alert: Something went wrong' });
-        //     });
     }
 
     static async addProduct(product) {
@@ -152,38 +187,26 @@ export default class ProductUtil {
                 (response) => {
                     console.log("response addProduct: ", response);
                     _response = response;
-                    this.addProductImg(product);
+                    this.addProductImg(response.data);
                 }
             )
             .send();
         return _response;
     }
 
-    /***
-     * @deprecated
-     * This async (like all async) returns a promise 
-     * whose resolve param is 'products'
-     * Call getAllProducts().then(products => {...}) to access the desired 'products' result
-     * @returns {Promise} 
-     */
-    static async getAllProducts() {
-        // let products = load(key_productsDB);
-        // if(!products || products.length === 0){
-        //     this.#createFakeProductDB();
-        //     products = load(key_productsDB);
-        // }
-
-        let products = null;
-        await RequestBuilder.get().url("products/")
-            .onSuccess(
-                (response) => {
-                    console.log("response ", response);
-                    products = response.data.content;
-                }
-            )
-            .send();
-        return products;
+    static async cacheProducts() {
+        if(!this._cachedProducts){
+            let bodyData = await this.getProductPaging("", 1, 10000, 'asc', 'title_text');
+            this._cachedProducts = bodyData.content;
+        }
+        return this._cachedProducts;
     }
+
+    static getCachedProducts(){
+        this.cacheProducts();
+        return this._cachedProducts;
+    }
+    
 
     /**
      * 

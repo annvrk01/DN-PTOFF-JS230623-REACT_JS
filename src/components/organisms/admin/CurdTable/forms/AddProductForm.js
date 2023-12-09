@@ -51,7 +51,7 @@ const AddProductForm = props => {
         }
 
         props.addProduct(product);
-        setProduct(initialFormState);
+        //setProduct(initialFormState);
       }}
     >
       <Form.Group>

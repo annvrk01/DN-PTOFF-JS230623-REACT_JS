@@ -8,7 +8,7 @@ const initialState = {
   }
 
  export const cartReducer = (state = initialState, action) => {
-    console.log('cartReducer running...');
+    //console.log('cartReducer running...');
     switch(action.type) {
       case 'add cart':        
         console.log(', caught event add cart...');

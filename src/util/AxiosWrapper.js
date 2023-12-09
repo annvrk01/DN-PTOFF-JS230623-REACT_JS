@@ -112,7 +112,7 @@ class RequestBuilder{
     }
 
     if(this.method === "get"){
-      console.log("sending, params = " + JSON.stringify(this.#params) + ", body = " + JSON.stringify(this.#body));
+      //console.log("sending, params = " + JSON.stringify(this.#params) + ", body = " + JSON.stringify(this.#body));
       return axios.get(
         this.#url, 
         paramObj)

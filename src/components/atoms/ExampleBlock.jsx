@@ -1,25 +1,35 @@
 import { useEffect, useState } from "react";
+import ProductUtil from "../../util/ProductUtil";
 
 export default function ExampleBlock(props) {
   const {detailedProduct} = props;
+
+  const [imgName, setImgName] = useState("");
 
   const [productFileFormats, setProductFileFormats] = useState("");
   const [productPrice, setProductPrice] = useState("");
 
   useEffect(() => {
     let productFileFormats = "";
-    detailedProduct.files.forEach((each) => {
+    detailedProduct?.files?.forEach((each) => {
       productFileFormats += "." + each.file_format + " ";
     });    
     setProductFileFormats(productFileFormats);
 
+    
+    let productPrice =
+      detailedProduct.price > 0 ? "" + (detailedProduct.price + " $") : "Free";
+    setProductPrice(productPrice);
+
+    ProductUtil.getImages(detailedProduct)
+    .then(
+      imgs => {
+        console.log("got imgs", imgs);
+        setImgName(imgs[0].name);
+      }
+    )
   }, [detailedProduct]);
 
-  useEffect(() => { 
-    let productPrice =
-      detailedProduct.price > 0 ? "" + detailedProduct.price : "Free";
-    setProductPrice(productPrice);
-  }, [detailedProduct]);
 
   return (
     <div className="example-block">
@@ -29,7 +39,9 @@ export default function ExampleBlock(props) {
           <img
             alt=""
             className="item-img product-bigimg"
-            src={detailedProduct.imgs[0]}
+            // src={detailedProduct?.imgs[0] || "null"}
+            src = { (ProductUtil.getStaticImageUrl(imgName) )
+               || ProductUtil.getStaticImageUrl("productImage-id151-8-12-2023T22-04-39-9910.jpeg")}
           />
         </a>
       </div>

@@ -16,6 +16,7 @@ import { hadLoggedIn } from "../../../util/Authen";
 import AccountHambuger from "../../molecules/account/hambuger";
 import ShopBasket from "../../molecules/account/shopBasket";
 import CartUtil from "../../../util/CartUtil";
+import parse from 'html-react-parser';
 
 
 
@@ -37,16 +38,19 @@ export default function ProductDetail() {
     const [product, setProduct] = useState(FakeData.fakeProductDetailInfos[0]);
 
     useEffect(() => {
-        if (!id) {
-            let product = FakeData.fakeProductDetailInfos[0];
-            setProduct(product);
-        } else {
-            console.log('reading product with id ' + id + '...')
-            let product = FakeData.fakeProductDetailInfos[id];
-            console.log('product: ', product);
-
-            setProduct(product);
-        }
+        let productId = Number(id);
+        if (!productId) {
+            productId = 1;
+        } 
+        
+        ProductUtil.getProduct(productId)
+        .then(
+            (product) => {                
+                console.log('product with id ', productId, ' = ', product);                
+                setProduct(product);
+            }
+        )
+        
     }, [id])
 
     function onClickAddToCart() {
@@ -472,7 +476,7 @@ export default function ProductDetail() {
                                 <div className="description-container">
                                     <h3 className="product-page-box-title product-page-box-title__description">Description</h3>
                                     <div className="product-description__text desc_english" id="desc_text">
-                                        {product.desc_text}
+                                        {parse((product.desc_text + "") || "")}
                                     </div>
 
                                 </div>

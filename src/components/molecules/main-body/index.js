@@ -3,6 +3,7 @@ import "./main.css"
 import FakeData from "../../../util/FakeData";
 import Category from "../../atoms/Category";
 import { useParams } from "react-router-dom";
+import ProductUtil from "../../../util/ProductUtil";
 
 export default function MainBody() {
     const [showingCategs, setShowingCategs] = useState([]);
@@ -15,17 +16,15 @@ export default function MainBody() {
         }, [categId])
 
     useEffect(() => {
-
-        let allCategs = FakeData.fakeProductCategories;
-
-        let showingCategs = [];
-        allCategs.forEach(
-            each => {
-                showingCategs.push(each);
+        ProductUtil.getBaseCategory()
+        .then(
+            (allBaseCategs) => {
+                console.log('allBaseCategs = ',allBaseCategs);
+                setShowingCategs(allBaseCategs);
+        
+                ProductUtil.cacheProducts();
             }
         )
-        console.log('showingCategs = ',showingCategs);
-        setShowingCategs(showingCategs);
     }, [])
     return (
         <div className="main">
@@ -127,11 +126,14 @@ export default function MainBody() {
                                         }
                                     }
                                     else{
-                                        let isTopLevelCategory = eachCateg.parent_category === 0;
+                                        let isTopLevelCategory = eachCateg.parentId === 0;
 
                                         if (isTopLevelCategory) {
                                             return <Category eachCateg={eachCateg} key={eachCateg.id}></Category>
                                         }
+
+                                        
+                                        console.log('not TopLevelCategory ! ',eachCateg);
                                         return null;
                                     }
                                 }

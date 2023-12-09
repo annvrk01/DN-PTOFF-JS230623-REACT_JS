@@ -31,12 +31,12 @@ export default class ProductSlider extends Component {
           asNavFor={this.state.nav1}
           ref={(slider) => (this.nav2 = slider)}
         >
-          {this.props.imgs?.map((eachImageFileName, idx) => {
+          {this.props.imgs?.map((eachImageObj, idx) => {
             return (
               <div className="slide-item" key={idx}>
                 <img
                   alt={this.props.product_title_text}
-                  src={eachImageFileName}
+                  src={eachImageObj.src}
                 ></img>
               </div>
             );
@@ -58,12 +58,12 @@ export default class ProductSlider extends Component {
           asNavFor={this.state.nav2}
           ref={(slider) => (this.nav1 = slider)}
         >
-          {this.props.imgs?.map((eachImageFileName, idx) => {
+          {this.props.imgs?.map((eachImageObj, idx) => {
             return (
               <div className="thumb-item" key={idx}>
                 <img
                   alt={this.props.product_title_text}
-                  src={eachImageFileName}
+                  src={eachImageObj.src}
                 ></img>
               </div>
             );

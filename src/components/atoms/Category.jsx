@@ -8,9 +8,13 @@ export default function Category(props) {
   const [showingItems, setShowingItems] = useState([]);
 
   useEffect(() => {
-    let productDetailInfos = FakeData.fakeProductDetailInfos;
-
+    if(!eachCateg) return;
     let showingItems = [];
+    let productDetailInfos = ProductUtil.getCachedProducts();
+    if(!productDetailInfos){
+      console.error("failed getting cached products", productDetailInfos);
+      return;
+    }
     productDetailInfos.forEach((eachProduct) => {
       if (
         ProductUtil.doesProductBelongToCategoryHierachy(
@@ -23,6 +27,7 @@ export default function Category(props) {
       showingItems.push(eachProduct);
     });
     setShowingItems(showingItems);
+
   }, [eachCateg]);
 
   return (
@@ -35,7 +40,7 @@ export default function Category(props) {
           </a>
         </div>
 
-        <div className="category-context">{eachCateg.desc}</div>
+        <div className="category-context">{eachCateg.description}</div>
       </div>
       {showingItems == null ? (
         <p> failed to get 'showingItems' </p>
