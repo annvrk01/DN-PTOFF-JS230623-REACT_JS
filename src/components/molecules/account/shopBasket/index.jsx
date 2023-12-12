@@ -3,6 +3,7 @@ import "./cart.css";
 import ProductUtil from "../../../../util/ProductUtil";
 import { AuthorUtil, reloadPage } from "../../../../util/utils";
 import CartUtil from "../../../../util/CartUtil";
+import { useEffect } from "react";
 
 export default function ShopBasket(props) {
   const { isCartShowing, setCartShowing, cart, setCart } = props;
@@ -10,29 +11,36 @@ export default function ShopBasket(props) {
   function toggleCart() {
     if (isCartShowing) {
       setCartShowing(false);
-    } else {
-      let cart = CartUtil.getLoggedInUserCart();
-      if (cart && cart.cartItems.length > 0) {
-        setCartShowing(true);
-      }
-      setCart(cart);
+      return;
     }
+
+    CartUtil.getLoggedInUserCart()
+    .then(
+      cart => {
+        if (CartUtil.isCartValid(cart)) {
+          setCartShowing(true);
+        }
+        setCart(cart);
+      }
+    )      
+    
   }
 
-  useState(() => {
-    if (cart && cart.cartItems.length > 0) {
-      setCartShowing(true);
-    }
+  const getTotalPrice = () => {
+    let totalPrice = 0;
+    cart?.products?.forEach(
+      (eachProduct, idx) => {
+        totalPrice += Number(eachProduct.price) || 0;
+      });
+    return totalPrice;
+  }
+
+  useEffect(() => {    
+    console.log("cart changed")
   }, [cart]);
 
-  useState(() => {
-    if(isCartShowing){
-      let cart = CartUtil.getLoggedInUserCart();
-      if (cart && cart.cartItems.length > 0) {
-        setCartShowing(true);
-      }    
-      setCart(cart);
-    }
+  useEffect(() => {
+    console.log("isCartShowing changed")
   }, [isCartShowing]);
 
   return (
@@ -50,44 +58,42 @@ export default function ShopBasket(props) {
             <div className="top"></div>
             <div className="items-container">
               <div className="sb-products-wrapper">
-                {cart?.cartItems?.map((eachCartItem, idx) => {
-                  let product = ProductUtil.selectProduct(
-                    eachCartItem.productId
-                  );
-                  if (!product) {
+                {cart?.products?.map((eachProduct, idx) => {
+                  // console.log("eachProduct = ", eachProduct);
+                  if (!eachProduct) {
                     return (
                       <p key={idx}>
                         {" "}
-                        NO Product with id {eachCartItem.productId} given by
-                        eachCartItem.productId
+                        NO Product with id {eachProduct.id} given by
+                        eachCartItem.id
                       </p>
                     );
                   }
 
-                  let author = AuthorUtil.select(product.authorId);
+                  let author = AuthorUtil.select(eachProduct?.authorId || 0);
                   return (
                     <div
                       className="sb-product-dropdown clearfix cart-item"
                       key={idx}
                     >
                       <a href="/">
-                        <img alt="" src={product.imgs[0]} width="75"></img>
+                        <img alt="" src={ProductUtil.getStaticImageUrl(eachProduct.img)} width="75"></img>
                       </a>
                       <div className="det">
                         <a className="title" href="">
-                          {product.title_text}
                           <span className="light">
+                            {eachProduct.title_text}
                             {" "}
-                            {product.title_extra_info}{" "}
+                            {eachProduct.title_extra_info || "3D Models"}{" "}
                           </span>
                         </a>
                         <div className="auth">
                           by
-                          <a href="">{author.username}</a>
+                          <a href="">{author?.username || "not-implemented"}</a>
                         </div>
                         <div className="price">
                           <span className="dollar">$</span>
-                          {product.price}
+                          {eachProduct.price}
                         </div>
                       </div>
                       <div className="trash">
@@ -95,8 +101,13 @@ export default function ShopBasket(props) {
                           type="button"
                           className="ss-trash"
                           onClick={() => {
-                            CartUtil.removeItemFromCart(eachCartItem, cart.id);
-                            reloadPage();
+                            CartUtil.removeItemFromCart(eachProduct, cart)
+                            .then(
+                              res => {
+                                console.log("respondData removeItemFromCart: ", res);
+                                //reloadPage();
+                              }
+                            )
                           }}
                         ></button>
                       </div>
@@ -109,7 +120,7 @@ export default function ShopBasket(props) {
                   Total:
                   <span className="price" id="cart-item-total-price">
                     <span className="dollar">$</span>
-                    277
+                    {getTotalPrice()}
                   </span>
                 </div>
                 <a href="/" className="btn-stock filled">

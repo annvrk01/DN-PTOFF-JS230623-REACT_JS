@@ -1,36 +1,114 @@
 import { hadLoggedIn } from "./Authen";
 import FakeData from "./FakeData";
-import { key_cart } from "./constants";
+import { URL_SERVER, key_cart, key_currentUser } from "./constants";
 import { getCurrentUser, AccountUtil, load, save, ArrayUtil } from "./utils";
 import RequestBuilder from "./AxiosWrapper";
+import axios from "axios";
 
 export default class CartUtil {
-
-    static getLoggedInUserCart() {
-        console.error("unimplemented")
-    }
-    static select(id) {
-        console.error("unimplemented")
+    static isCartValid(cart){
+        return cart 
+        && cart.productids 
+        && cart.productids.length > 0;
     }
 
-    static createNewCart() {
-        console.error("unimplemented")
+    static async getLoggedInUserCart() {
+        let user = load(key_currentUser);
+        if (!user) {
+            console.error("Found none logged in !", user)
+            return null;
+        }
+        return this.getCartByUserId(user.id);
     }
 
-    static addToCart(cart, product) {
-        console.error("unimplemented")
-        return;
+    static async getCartByUserId(id) {
+        let cart = null;
+        await RequestBuilder.get().url("carts/userId/" + id)
+            .onSuccess(
+                (response) => {
+                    console.log("response getCartByUserId: ", response);
+                    cart = response.data.cart;
+                    if(cart instanceof Array){
+                        cart = cart[0];
+                    }
+                }
+            )
+            .send();
+        return cart;
     }
-    static findCartItemWithCart(cart, cartItem) {
+
+    static async createNewCart(products) {
+        let user = load(key_currentUser);
+        if (!user) {
+            console.error("Found none logged in !", user)
+            return null;
+        }
+        console.log("Adding new cart for current user ", user, " products: ", products);
+        let responseData = null;
+
+        let product = (products instanceof Array) ? products[0] : products;
+        await axios.post(URL_SERVER + "carts/userId/" + user.id, {            
+            product: {id: product.id}
+        })
+        .then(
+            res => {                
+                console.log("response addToCart: ", response);
+                responseData = response.data;
+            }
+        );
+        return responseData;
+    }
+
+    static async addToCart(cart, product) {
+        if (!cart || isNaN(Number(cart.id))) {
+            console.warn("No cart found for this user yet, adding new cart");
+            return this.createNewCart([product]);
+        }
         
+        let responseData = null;
+        await RequestBuilder.post()
+            .url("carts/cart-item/" + cart.id)
+            .body({ 
+                product: product
+             })
+            .onSuccess(
+                (response) => {
+                    console.log("response addToCart: ", response);
+                    responseData = response.data;
+                }
+            )
+            .send();
+        return responseData;
+    }
+
+    static findCartItemWithCart(cart, cartItem) {
+
         console.error("unimplemented")
     }
 
-    static removeItemFromCart(cartItem, cartId) {
-        console.error("unimplemented")
+    static async removeItemFromCart(product, cart) {     
+        let body = { 
+            productId: product.id,
+            cartId: cart.id
+        }   
+        console.log("removeItemFromCart ", product, cart, " body: ", body);
+
+        await RequestBuilder.put().url("carts/userId/" + 1)
+        .body(body)
+        .onSuccess(
+            (response) => {
+                console.log("response getCartByUserId: ", response);
+                cart = response.data.cart;
+                if(cart instanceof Array){
+                    cart = cart[0];
+                }
+            }
+        )
+        .send();
+        return cart;
     }
 
-    
+
     static async deleteCart(params) {
         let cart = {};
         if (!isNaN(Number(params)))
@@ -84,16 +162,6 @@ export default class CartUtil {
         );
 
         console.log("sending addCartImg, formData = ", formData);
-        // await RequestBuilder.post().url("carts/images")
-        // .header({ headers: { 'Content-Type': 'multipart/form-data' }})
-        // .body(formData)
-        // .onSuccess( 
-        //     (response) => {
-        //         console.log("response upload images: ", response);
-        //         _response = response
-        //     }
-        // )
-        // .send(); 
 
         let fd = new FormData();
         fd.append('cartImage', cart.imgs[0]);

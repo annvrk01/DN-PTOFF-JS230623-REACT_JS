@@ -6,6 +6,7 @@ import { Table, Card } from "react-bootstrap";
 import ProductUtil from "../../../../util/ProductUtil";
 import { useEffect } from "react";
 import { cloneObj, s } from "../../../../util/utils";
+import NavBarHome from "../../../molecules/navbar/navbar";
 
 const initialFormState = {
   id: -1,
@@ -28,7 +29,6 @@ export default function ProductManagement() {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-
 
   useEffect(
     () => {
@@ -135,9 +135,13 @@ export default function ProductManagement() {
       geometry: product.geometry,
     });
   };
-
   return (
     <div className="container-fluid">
+      
+      <div className="">
+        <NavBarHome></NavBarHome>
+      </div>
+
       <h4>Add / Edit Products</h4>
       <div className="row">
         <div className="col-12 col-sm-6 mx-auto addProduct">

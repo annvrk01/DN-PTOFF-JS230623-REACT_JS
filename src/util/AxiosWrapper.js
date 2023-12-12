@@ -7,9 +7,16 @@ class RequestBuilder{
   #header;
   #body;
   #params;
+  #logEnabled;
 
-  del
-  
+  log(){
+    this.#logEnabled = true;
+  }
+
+  disableLog(){
+    this.#logEnabled = false;
+  }
+
   /***
    * @returns {RequestBuilder}
    */
@@ -51,10 +58,18 @@ class RequestBuilder{
    * @returns {RequestBuilder}
    */
   url(url){
+    if(this.#logEnabled){
+      console.log('set url = ' + url);
+    }
+
     if(!url.startsWith(URL_SERVER)){
       url = URL_SERVER + url;
     }
     this.#url = url;
+    
+    if(this.#logEnabled){
+      console.log('url = ' + this.#url);
+    }
     return this;
   }
 
@@ -110,13 +125,17 @@ class RequestBuilder{
     if(this.#header){
       paramObj.header = this.#header;
     }
+    console.log("======================Sending============================");
 
     if(this.method === "get"){
       //console.log("sending, params = " + JSON.stringify(this.#params) + ", body = " + JSON.stringify(this.#body));
       return axios.get(
         this.#url, 
         paramObj)
-        .then( this.callbackOnSuccess )
+        .then( (any) => {
+          console.log("======================Got response============================");
+          this.callbackOnSuccess(any);
+        })
         .catch( this.callbackOnFailure );
     }
 
@@ -124,7 +143,10 @@ class RequestBuilder{
       this.#url, 
       this.#body, 
         paramObj)
-      .then( this.callbackOnSuccess )
+        .then( (any) => {
+          console.log("======================Got response============================");
+          this.callbackOnSuccess(any);
+        })
       .catch( this.callbackOnFailure );
   }
 }

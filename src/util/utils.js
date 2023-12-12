@@ -23,7 +23,7 @@ let save = (key, content) => {
     localStorage.setItem(key, toJson(content));
 }
 
-export let load = (key) => {
+let load = (key) => {
     return fromJson(localStorage.getItem(key));
 }
 
@@ -203,7 +203,7 @@ let cloneObj = (obj) => {
 export {
     hash, arrayFromHTMLCollection, cloneDOM, cloneObj,
     convertToDate, fromJson, getCurrentUser,
-    removeFromStorage, save, toJson,
+    removeFromStorage, save, load, toJson,
     fixUpId, AccountUtil, ArrayUtil, AuthorUtil,  StringUtil,
     isUndefined, isFunction,
     reloadPage, s

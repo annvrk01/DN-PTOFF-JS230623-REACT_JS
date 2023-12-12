@@ -6,6 +6,7 @@ import { Table, Card } from "react-bootstrap";
 import CartUtil from "../../../../util/CartUtil";
 import { useEffect } from "react";
 import { s } from "../../../../util/utils";
+import NavBarHome from "../../../molecules/navbar/navbar";
 
 const initialFormState = {
   id: -1,
@@ -117,6 +118,11 @@ export default function CartManagement() {
 
   return (
     <div className="container-fluid">
+      
+    <div className="">
+      <NavBarHome></NavBarHome>
+    </div>
+
       <h4>Add / Edit Carts</h4>
       <div className="row">
         <div className="col-12 col-sm-6 mx-auto addCart">

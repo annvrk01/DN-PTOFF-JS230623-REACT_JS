@@ -6,7 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import ProductSlider from "../../atoms/ProductSlider";
 import FakeData from "../../../util/FakeData";
 import moment from "moment";
-import { AuthorUtil, StringUtil } from "../../../util/utils";
+import { AuthorUtil, StringUtil, reloadPage } from "../../../util/utils";
 import ProductUtil from "../../../util/ProductUtil";
 import ProductBreadcrumb from "../../atoms/ProductBreadcrumb";
 import ProductFileInfo from "../../atoms/ProductFileInfo";
@@ -37,6 +37,19 @@ export default function ProductDetail() {
     const { id } = useParams();
     const [product, setProduct] = useState(FakeData.fakeProductDetailInfos[0]);
 
+    
+    useEffect(() => {
+        CartUtil.getLoggedInUserCart()
+        .then(
+        cart => {
+            if (CartUtil.isCartValid(cart)) {
+            setCartShowing(true);
+            }
+            setCart(cart);
+        })      
+    }, []);
+
+
     useEffect(() => {
         let productId = Number(id);
         if (!productId) {
@@ -51,7 +64,11 @@ export default function ProductDetail() {
             }
         )
         
-    }, [id])
+    }, [id]);
+
+    useEffect(() => {        
+        console.log("isCartShowing changed")    
+    }, [isCartShowing])
 
     function onClickAddToCart() {
         if (!hadLoggedIn()) {
@@ -60,13 +77,20 @@ export default function ProductDetail() {
         }
         setDownloadAddToCartBtnClassName("btn-disabled");
 
-        let succeedAddingToCart = CartUtil.addToCart(CartUtil.getLoggedInUserCart(), product);
+        CartUtil.addToCart(cart, product)
+        .then(
+            result => {
+                setDownloadAddToCartBtnClassName("btn-disabled");
+                console.log("product page changing cart state...");
+                reloadPage();
+                //setCart(CartUtil.getLoggedInUserCart());                
+        })
+        .catch(
+            err => {
 
-        if (succeedAddingToCart) {
-            setDownloadAddToCartBtnClassName("btn-disabled");
-            console.log("product page changing cart state...");
-            setCart(CartUtil.getLoggedInUserCart());
-        }
+            }
+        )
+
     }
 
     function onClickDownload() {
