@@ -4,7 +4,7 @@ import './productDetailRoot.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ProductSlider from "../../atoms/ProductSlider";
-import FakeData from "../../../util/FakeData";
+import FakeData, { FakeDataGenerator } from "../../../util/FakeData";
 import moment from "moment";
 import { AuthorUtil, StringUtil, reloadPage } from "../../../util/utils";
 import ProductUtil from "../../../util/ProductUtil";
@@ -17,6 +17,7 @@ import AccountHambuger from "../../molecules/account/hambuger";
 import ShopBasket from "../../molecules/account/shopBasket";
 import CartUtil from "../../../util/CartUtil";
 import parse from 'html-react-parser';
+import SimilarProduct from "./similarProduct";
 
 
 
@@ -35,18 +36,35 @@ export default function ProductDetail() {
     const [downloadOrAddToCart, setDownloadOrAddToCart] = useState("download");
 
     const { id } = useParams();
-    const [product, setProduct] = useState(FakeData.fakeProductDetailInfos[0]);
+    const [product, setProduct] = useState(FakeDataGenerator.generateFakeProductDetailInfos()[0]);
 
-    
+    const [similarProducts, setSimilarProducts] = useState(null);
+
+    useEffect(
+        () => {
+            if (similarProducts
+                && similarProducts instanceof Array
+                && similarProducts.length > 0) return;
+
+            let originalProduct = product;
+            if (!originalProduct || FakeDataGenerator.isFake(originalProduct)) return;
+            ProductUtil.getSimilarProducts(originalProduct, id)
+                .then(
+                    products => {
+                        setSimilarProducts(products);
+                    }
+                )
+        }, [product]);
+
     useEffect(() => {
         CartUtil.getLoggedInUserCart()
-        .then(
-        cart => {
-            if (CartUtil.isCartValid(cart)) {
-            setCartShowing(true);
-            }
-            setCart(cart);
-        })      
+            .then(
+                cart => {
+                    if (CartUtil.isCartValid(cart)) {
+                        setCartShowing(true);
+                    }
+                    setCart(cart);
+                })
     }, []);
 
 
@@ -54,20 +72,20 @@ export default function ProductDetail() {
         let productId = Number(id);
         if (!productId) {
             productId = 1;
-        } 
-        
+        }
+
         ProductUtil.getProduct(productId)
-        .then(
-            (product) => {                
-                console.log('product with id ', productId, ' = ', product);                
-                setProduct(product);
-            }
-        )
-        
+            .then(
+                (product) => {
+                    console.log('product with id ', productId, ' = ', product);
+                    setProduct(product);
+                }
+            )
+
     }, [id]);
 
-    useEffect(() => {        
-        console.log("isCartShowing changed")    
+    useEffect(() => {
+        console.log("isCartShowing changed")
     }, [isCartShowing])
 
     function onClickAddToCart() {
@@ -78,18 +96,18 @@ export default function ProductDetail() {
         setDownloadAddToCartBtnClassName("btn-disabled");
 
         CartUtil.addToCart(cart, product)
-        .then(
-            result => {
-                setDownloadAddToCartBtnClassName("btn-disabled");
-                console.log("product page changing cart state...");
-                reloadPage();
-                //setCart(CartUtil.getLoggedInUserCart());                
-        })
-        .catch(
-            err => {
+            .then(
+                result => {
+                    setDownloadAddToCartBtnClassName("btn-disabled");
+                    console.log("product page changing cart state...");
+                    reloadPage();
+                    //setCart(CartUtil.getLoggedInUserCart());                
+                })
+            .catch(
+                err => {
 
-            }
-        )
+                }
+            )
 
     }
 
@@ -132,7 +150,7 @@ export default function ProductDetail() {
                         <div className="nav-search-bar">
                             <form id="searchForm">
                                 <input type="text" className="search-bar" name="q" placeholder="search 3d models ..."
-                                    readOnly value={product.title_text}>
+                                    readOnly value={product?.title_text}>
                                 </input>
                                 <button className="ss-search" id="search-button2" type="button">
                                 </button>
@@ -151,11 +169,11 @@ export default function ProductDetail() {
                         }
                         {
                             hadLoggedIn()
-                                ? <ShopBasket isCartShowing={isCartShowing} setCartShowing={setCartShowing} 
-                                cart = {cart}  setCart = {setCart} />
+                                ? <ShopBasket isCartShowing={isCartShowing} setCartShowing={setCartShowing}
+                                    cart={cart} setCart={setCart} />
                                 : null
                         }
-                        
+
                         <div className="clearfix"></div>
                     </div>
                 </div>
@@ -201,121 +219,17 @@ export default function ProductDetail() {
                     <div className="similar-products-container left  has-clearfix">
 
                         <div id="product-similar-products" className="product-similar-products recommended-products">
-                            <div className="search-result  premium">
-                                <div className="search-result__content-wrapper">
-
-                                    <a href="/" className="search-result__thumb-wrapper">
-                                        <img style={{ maxWidth: "200px" }} className="search-result__thumb"
-                                            src="https://preview.free3d.com/img/2016/05/2705008806873531721/re2rg2js.jpg"
-                                            alt="Intergalactic Spaceship Design 3d model"
-                                            title="Intergalactic Spaceship Design 3d model"
-                                            rel="{&quot;pret&quot;:&quot;$63&quot;,&quot;type&quot;:&quot;.wrl .unitypackage .upk .tgo .stl .obj .fbx .blend&quot;,&quot;standard&quot;:null,&quot;imgd&quot;:&quot;https:\/\/preview.free3d.com\/img\/2016\/05\/2705008806873531721\/re2rg2js.jpg&quot;}">
-
-                                        </img>
-                                        <div className="standard ">
-                                        </div>
-                                    </a>
-                                    <div className="search-result__info-wrapper">
-                                        <div className="search-result__title"><a
-                                            href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                            className="link product-page-link">Intergalactic Spaceship Design</a></div>
-                                        <span className="search-result__format">.wrl .unitypackage .upk .tgo .stl .obj .fbx
-                                            .blend</span>
-                                        <div className="search-result__footer">
-                                            <span data-price="63" className="search-result__price  product-page-link"><span
-                                                className="dollar">$</span>63 </span>
-                                            <span className="search-result__stats"><span className="stat-item views">0</span></span>
-
-                                        </div>
-                                    </div>
-
-                                    <div className="sec_entry_group"></div>
-                                    <a href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                        className="product-tools product-tools__premium product-page-link">
-                                        <span
-                                            className="product-tool product-tool__zoom">
-
-                                        </span>
-                                    </a>
-                                </div>
-
-                            </div>
-                            <div className="search-result  premium">
-                                <div className="search-result__content-wrapper">
-
-                                    <a href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                        className="search-result__thumb-wrapper">
-                                        <img style={{ maxWidth: "200px" }} className="search-result__thumb"
-                                            src="https://preview.free3d.com/img/2016/05/2705008806873531721/re2rg2js.jpg"
-                                            alt="Intergalactic Spaceship Design 3d model"
-                                            title="Intergalactic Spaceship Design 3d model"
-                                            rel="{&quot;pret&quot;:&quot;$63&quot;,&quot;type&quot;:&quot;.wrl .unitypackage .upk .tgo .stl .obj .fbx .blend&quot;,&quot;standard&quot;:null,&quot;imgd&quot;:&quot;https:\/\/preview.free3d.com\/img\/2016\/05\/2705008806873531721\/re2rg2js.jpg&quot;}">
-                                        </img>
-                                        <div className="standard ">
-                                        </div>
-                                    </a>
-                                    <div className="search-result__info-wrapper">
-                                        <div className="search-result__title"><a
-                                            href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                            className="link product-page-link">Intergalactic Spaceship Design</a></div>
-                                        <span className="search-result__format">.wrl .unitypackage .upk .tgo .stl .obj .fbx
-                                            .blend</span>
-                                        <div className="search-result__footer">
-                                            <span data-price="63" className="search-result__price  product-page-link"><span
-                                                className="dollar">$</span>63 </span>
-                                            <span className="search-result__stats"><span className="stat-item views">0</span></span>
-
-                                        </div>
-                                    </div>
-
-                                    <div className="sec_entry_group"></div>
-                                    <a href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                        className="product-tools product-tools__premium product-page-link"><span
-                                            className="product-tool product-tool__zoom">
-                                        </span>
-                                    </a>
-                                </div>
-
-                            </div>
-                            <div className="search-result  premium">
-                                <div className="search-result__content-wrapper">
-
-                                    <a href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                        className="search-result__thumb-wrapper">
-                                        <img style={{ maxWidth: "200px" }} className="search-result__thumb"
-                                            src="https://preview.free3d.com/img/2016/05/2705008806873531721/re2rg2js.jpg"
-                                            alt="Intergalactic Spaceship Design 3d model"
-                                            title="Intergalactic Spaceship Design 3d model"
-                                            rel="{&quot;pret&quot;:&quot;$63&quot;,&quot;type&quot;:&quot;.wrl .unitypackage .upk .tgo .stl .obj .fbx .blend&quot;,&quot;standard&quot;:null,&quot;imgd&quot;:&quot;https:\/\/preview.free3d.com\/img\/2016\/05\/2705008806873531721\/re2rg2js.jpg&quot;}">
-
-                                        </img>
-                                        <div className="standard ">
-                                        </div>
-                                    </a>
-                                    <div className="search-result__info-wrapper">
-                                        <div className="search-result__title"><a
-                                            href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                            className="link product-page-link">Intergalactic Spaceship Design</a></div>
-                                        <span className="search-result__format">.wrl .unitypackage .upk .tgo .stl .obj .fbx
-                                            .blend</span>
-                                        <div className="search-result__footer">
-                                            <span data-price="63" className="search-result__price  product-page-link"><span
-                                                className="dollar">$</span>63 </span>
-                                            <span className="search-result__stats"><span className="stat-item views">0</span></span>
-
-                                        </div>
-                                    </div>
-
-                                    <div className="sec_entry_group"></div>
-                                    <a href="/3d-model/intergalactic-spaceship-design-8562.html"
-                                        className="product-tools product-tools__premium product-page-link">
-                                        <span className="product-tool product-tool__zoom">
-
-                                        </span>
-                                    </a>
-                                </div>
-
-                            </div>
+                            {
+                                similarProducts?.map(
+                                    (eachSimilarProduct, idx) => {
+                                        return <SimilarProduct
+                                            similarProduct={eachSimilarProduct}
+                                            id={idx}
+                                            key= {idx} >
+                                        </SimilarProduct>
+                                    }
+                                )
+                            }
                         </div>
                     </div>
                     <div className="product-page-content-wrapper">
@@ -333,21 +247,23 @@ export default function ProductDetail() {
                                     )
                                 }
                                 <span className="current-page-title" id="breadcrumb-product-title">
-                                    {product.title_text}
+                                    {product?.title_text}
                                 </span>
                             </div>
                             <h1 className="product-page-header__title">
                                 <span className="title_text" id="title_text">
-                                    {product.title_text}
+                                    {product?.title_text}
                                 </span>
+                                
+                                {" "}
                                 <span className="title_extra_info" id="title_extra_info">
-                                    {product.title_extra_info}
+                                    {product?.title_extra_info || "3D Models"}
                                 </span>
                             </h1>
 
                             <div className="btn-action btn-bookmark-product " title="Bookmark">
                                 <span className="count" id="likes-count">
-                                    {product.likes_count}
+                                    {product?.likes_count || "0"}
                                 </span>
                             </div>
                         </div>

@@ -123,9 +123,9 @@ export default function CartManagement() {
       <NavBarHome></NavBarHome>
     </div>
 
-      <h4>Add / Edit Carts</h4>
+      {/* <h4>Add / Edit Carts</h4> */}
       <div className="row">
-        <div className="col-12 col-sm-6 mx-auto addCart">
+        {/* <div className="col-12 col-sm-6 mx-auto addCart">
           <Card className="">
             {editing ? (
               <Fragment>
@@ -144,7 +144,7 @@ export default function CartManagement() {
               </Fragment>
             )}
           </Card>
-        </div>
+        </div> */}
         <div className="col-12">
           <h5>View carts</h5>
           <CartTable 

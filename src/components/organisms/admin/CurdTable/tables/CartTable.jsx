@@ -12,6 +12,11 @@ const SORT_BY = {
   DES : "des"
 }
 
+const CartStatusEnum = new Map();
+CartStatusEnum.set(0,"BROWSING");
+CartStatusEnum.set(1,"AWAITING_PAYMENT");
+CartStatusEnum.set(2,"PAID");
+
 const CartTable = props => {
   const [sortOrder, setSortOrder] = useState(SORT_BY.ASC);
 
@@ -107,6 +112,12 @@ const CartTable = props => {
             }}>
               PRODUCT NAMES
             </th>
+
+            <th className="sortTrigger" onClick={(event) => {
+              //...
+            }}>
+              Cart status
+            </th>
             
             <th className="sortTrigger" onClick={(event) => {
               props.setSortBy("date_added");
@@ -134,6 +145,7 @@ const CartTable = props => {
                 <td>{(cart.totalprice || "0") + " $" }</td>
                 <td>{cart.productids}</td>
                 <td>{cart.productnames}</td>
+                <td>{CartStatusEnum?.get(cart?.status) || "UNKNOWN"}</td>
                 <td>{cart.date_added?.split("T").join()}</td>
                 <td>{cart.date_updated}</td>
                 <td>
@@ -178,5 +190,7 @@ const CartTable = props => {
     </>
   )
 };
+
+
 
 export default CartTable;

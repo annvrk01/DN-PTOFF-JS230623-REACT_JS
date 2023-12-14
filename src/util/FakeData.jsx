@@ -177,7 +177,7 @@ export class FakeDataGenerator {
 
 
     static generateFakeProductDetailInfos = () => {
-        return [
+        let products =  [
             {
                 id:0,
                 title_text: 'Living Room',
@@ -2560,7 +2560,18 @@ export class FakeDataGenerator {
                 date_added: '15-06-2021',
                 date_updated: '18-06-2021',
             },
-        ]
+        ];
+
+        products.forEach(
+            eachProd => {
+                eachProd.isFake = true;
+            }
+        )
+        return products;
+    }
+
+    static isFake(product){
+        return product.isFake === true;
     }
 }
 const FakeData = {};

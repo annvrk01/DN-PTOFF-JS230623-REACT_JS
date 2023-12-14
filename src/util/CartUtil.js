@@ -6,6 +6,23 @@ import RequestBuilder from "./AxiosWrapper";
 import axios from "axios";
 
 export default class CartUtil {
+    static async checkOutCart(cart){
+        let res = null;
+        await RequestBuilder.post().url("carts/checkout/" + cart.id)
+            .onSuccess(
+                (response) => {
+                    console.log("response checkOutCart: ", response);
+                    
+                    res = response;
+                    if(res instanceof Array){
+                        res = res[0];
+                    }
+                }
+            )
+            .send();
+        return res;
+    }
+
     static isCartValid(cart){
         return cart 
         && cart.productids 

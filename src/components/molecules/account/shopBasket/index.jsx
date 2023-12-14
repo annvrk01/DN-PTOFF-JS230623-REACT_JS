@@ -43,6 +43,15 @@ export default function ShopBasket(props) {
     console.log("isCartShowing changed")
   }, [isCartShowing]);
 
+
+  const checkOutCart = (e) => {  
+    e.preventDefault();  
+    console.log("checkOutCart ", cart)
+
+    if(!cart || cart.id < 1) return;
+    CartUtil.checkOutCart(cart);
+  }
+
   return (
     <div
       className="notf-icon notiff_top ss-basket basket_notiff userStuffs"
@@ -123,7 +132,7 @@ export default function ShopBasket(props) {
                     {getTotalPrice()}
                   </span>
                 </div>
-                <a href="/" className="btn-stock filled">
+                <a href="" className="btn-stock filled" onClick={ checkOutCart }>
                   <span className="ss-cart"></span>
                   Check Out →
                 </a>

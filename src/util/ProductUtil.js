@@ -41,6 +41,28 @@ export default class ProductUtil {
         return product;
     }
 
+    static async getSimilarProducts(originalProduct, rowIndex){
+        if(!originalProduct){
+            console.error("no originalProduct ", originalProduct );
+            return;
+        }
+        let similarProducts = null;
+        console.log("getSimilarProducts, originalProduct is ", originalProduct);
+        await RequestBuilder.post().url("products/similar/")
+            .body({
+                product: originalProduct,
+                rowIndex: rowIndex
+            })
+            .onSuccess(
+                (response) => {
+                    console.log("response getSimilarProducts ", response);
+                    similarProducts = response.data.similarProducts;
+                }
+            )
+            .send();
+        return similarProducts;
+    }
+
     static selectCategory(categoryId) {
         let allCategs = FakeData.fakeProductCategories;
         let resultCategory = null;
